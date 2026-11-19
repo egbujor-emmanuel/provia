@@ -7,7 +7,7 @@ export function GET(): Response {
   const agent = process.env.NEXT_PUBLIC_AGENT_URL ?? '(agent URL not configured)';
   const body = `# Provia
 
-> Escrow agent that releases crypto only when the buyer's naira payment is proven: zkTLS over Paystack's verify API, a Groth16 release-policy proof verified on zkVerify, and an escrow on Base Sepolia that checks zkVerify's aggregation on-chain. A screenshot proves nothing.
+> Escrow agent that releases crypto only when the buyer's fiat payment is proven: zkTLS over the payment processor's verify API (Paystack test mode), a Groth16 release-policy proof verified on zkVerify, and an escrow on Base Sepolia that checks zkVerify's aggregation on-chain.
 
 ## Agent API (${agent})
 - GET  /health

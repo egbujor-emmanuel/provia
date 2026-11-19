@@ -56,7 +56,7 @@ export function drawSurface(scale: number): HTMLCanvasElement {
 
   ctx.fillStyle = '#15140f';
   ctx.font = `400 190px ${f.serif}`;
-  ctx.fillText('₦1,500.00', L.padX - 6, L.amountY);
+  ctx.fillText('$1,500.00', L.padX - 6, L.amountY);
 
   ctx.fillStyle = '#4a4740';
   ctx.font = `400 34px ${f.mono}`;

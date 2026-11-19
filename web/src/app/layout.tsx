@@ -10,13 +10,13 @@ const mono = Space_Mono({ variable: '--font-mono-face', subsets: ['latin'], weig
 const serif = Instrument_Serif({ variable: '--font-serif', subsets: ['latin'], weight: '400', style: ['normal', 'italic'] });
 
 export const metadata: Metadata = {
-  title: 'Provia: escrow that pays only on proven payment',
+  title: 'Provia: crypto escrow with verified payment proofs',
   description:
-    'Provia is an escrow agent that releases crypto only when the buyer’s naira payment is proven, with zkTLS and a Groth16 proof verified on zkVerify. A screenshot proves nothing.',
+    'Provia is an escrow agent that releases crypto only when the buyer’s fiat payment is proven, with zkTLS and a Groth16 proof verified on zkVerify.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),
   openGraph: {
     title: 'Provia',
-    description: 'A screenshot proves nothing. A zkVerify-verified proof does.',
+    description: 'Crypto escrow that releases only on a verified payment proof.',
     type: 'website',
   },
 };

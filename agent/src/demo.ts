@@ -16,7 +16,7 @@ export const SCENARIOS = {
 } as const;
 export type Scenario = keyof typeof SCENARIOS;
 
-export const DEMO_PRICE_KOBO = 150_000n; // ₦1,500.00
+export const DEMO_PRICE_KOBO = 150_000n; // 1,500.00 in the processor's minor units
 export const DEMO_TOKEN_UNITS = 50_000n; // 0.05 test USDC (6 decimals)
 const DEMO_TRADE_TTL_S = 3_600n;
 
@@ -64,11 +64,11 @@ async function runScenario(ctx: DemoContext, scenario: Scenario, tradeId: bigint
     switch (scenario) {
       case 'honest': {
         const ref = await pay(DEMO_PRICE_KOBO, tradeId);
-        message = `Hi, I've sent the ₦1,500 for this trade. Ref: ${ref}`;
+        message = `Hi, I've sent the payment for this trade. Ref: ${ref}`;
         break;
       }
       case 'forged-screenshot':
-        message = `Paid ₦1,500 just now, here is my bank receipt screenshot. Reference: PSK-${randomInt(10_000_000, 99_999_999)}X`;
+        message = `Paid just now, here is my bank receipt screenshot. Reference: PSK-${randomInt(10_000_000, 99_999_999)}X`;
         break;
       case 'short-payment': {
         const ref = await pay(DEMO_PRICE_KOBO - 50_000n, tradeId);

@@ -3,7 +3,7 @@
 export const REFUSALS = {
   NO_PAYMENT_AT_PSP: 'The payment processor reports no successful payment for this reference.',
   AMOUNT_SHORT: 'The cleared amount is below the trade price.',
-  WRONG_CURRENCY: 'The payment was not made in the trade currency (NGN).',
+  WRONG_CURRENCY: 'The payment was not made in the trade currency.',
   PAID_AFTER_DEADLINE: 'The payment cleared after the trade deadline.',
   REF_REUSED: 'This payment reference has already released a trade.',
   TRADE_MISMATCH: 'The payment is attached to a different trade.',

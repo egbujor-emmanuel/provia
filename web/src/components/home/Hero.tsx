@@ -9,7 +9,7 @@ import { EscrowWatch } from './EscrowWatch';
 
 const PRESETS = [
   { id: 'forged-screenshot', label: 'Forged screenshot', stamp: 'REFUSED' },
-  { id: 'short-payment', label: 'Pays ₦1,000 of ₦1,500', stamp: 'REFUSED' },
+  { id: 'short-payment', label: 'Pays two-thirds of the price', stamp: 'REFUSED' },
   { id: 'wrong-trade', label: 'Payment for another trade', stamp: 'REFUSED' },
   { id: 'replay', label: 'Reused payment', stamp: 'REFUSED' },
   { id: 'honest', label: 'Honest buyer', stamp: 'RELEASED' },
@@ -33,12 +33,12 @@ export function Hero() {
     <section ref={root} aria-labelledby="hero-heading" className="relative overflow-hidden border-b border-rule pt-24 sm:pt-28">
       <div className="mx-auto grid max-w-[1280px] gap-10 px-4 pb-16 sm:px-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12 lg:pb-20">
         <div className="lg:pt-6">
-          <p className="hero-in font-mono text-[11px] uppercase tracking-[0.2em] text-ink-3">Escrow agent · Naira → USDC · zkVerify</p>
+          <p className="hero-in font-mono text-[11px] uppercase tracking-[0.2em] text-ink-3">Escrow agent · fiat → crypto · zkVerify</p>
           <h1 id="hero-heading" className="hero-in mt-4 font-display text-[clamp(2.4rem,1.5rem+3.2vw,4.1rem)] leading-[1.02] tracking-[-0.015em]">
-            A screenshot proves nothing. <em className="text-no">Provia</em> proves the payment.
+            Crypto escrow that releases only on a verified payment proof.
           </h1>
           <p className="hero-in mt-5 max-w-[34rem] text-[17px] leading-relaxed text-ink-2">
-            Sellers release crypto after seeing a bank alert, and forged alerts are the most common P2P scam. Provia keeps the crypto in escrow and pays out only when Paystack’s own API is proven with zkTLS and a Groth16 proof verified on zkVerify.
+            In a peer-to-peer trade, the seller usually releases crypto after looking at a payment alert, and alerts are easy to fake. Provia holds the crypto in a contract. It releases when the payment processor’s own record is proven with zkTLS and the trade rules are proven with a Groth16 proof verified on zkVerify.
           </p>
 
           <div className="hero-in mt-7">

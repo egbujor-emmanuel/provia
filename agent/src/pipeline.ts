@@ -143,7 +143,7 @@ export async function runClaim(deps: PipelineDeps, receipt: Receipt, message: st
       const now = await chain.latestTimestamp();
       const verdict = evaluateRelease(trade, claim, (r) => deps.usedReferences.has(r), now);
       if (!verdict.ok) throw new Refused(verdict.code);
-      s.detail = 'all checks pass: success, NGN, full amount, on time, this trade, unused';
+      s.detail = 'all checks pass: success, trade currency, full amount, on time, this trade, unused';
     });
 
     const { publicSignals, groth16, signals } = await step(store, receipt, 'groth16', 'Prove the policy (Groth16)', async (s) => {

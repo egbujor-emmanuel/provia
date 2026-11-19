@@ -52,7 +52,7 @@ export default function HowItWorks() {
       <p className="text-xs uppercase tracking-[0.22em] text-ink-3">How it works</p>
       <h1 className="mt-3 font-display text-[clamp(2.6rem,1.6rem+4vw,4.8rem)] leading-[0.95] tracking-tight">Proof replaces the seller’s eyes.</h1>
       <p className="mt-5 max-w-3xl text-lg text-ink-2">
-        Provia sits between a seller of crypto and a buyer paying in naira. The seller locks funds; the buyer pays through Paystack; the agent turns that payment into proofs that zkVerify verifies, and the escrow pays out only against them.
+        Provia sits between a seller of crypto and a buyer paying in fiat. The seller locks funds; the buyer pays through a payment processor (Paystack, in test mode); the agent turns that payment into proofs that zkVerify verifies, and the escrow pays out only against them.
       </p>
 
       <section aria-labelledby="workflow" className="mt-14">

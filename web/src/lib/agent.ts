@@ -67,13 +67,6 @@ export const listReceipts = () => call<ReceiptSummary[]>('/api/receipts');
 export const startScenario = (scenario: string) =>
   call<{ receiptId: string; tradeId: string }>(`/api/demo/${encodeURIComponent(scenario)}`, { method: 'POST' });
 
-export function formatNaira(kobo: string | number | bigint): string {
-  const k = BigInt(kobo);
-  const naira = k / 100n;
-  const rest = (k % 100n).toString().padStart(2, '0');
-  return `₦${naira.toLocaleString('en-NG')}.${rest}`;
-}
-
 export function formatUsdc(units: string | number | bigint): string {
   const u = BigInt(units);
   const whole = u / 1_000_000n;

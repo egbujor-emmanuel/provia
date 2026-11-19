@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getConfig, startScenario, formatNaira, formatUsdc, type AgentConfig } from '@/lib/agent';
+import { getConfig, startScenario, formatUsdc, type AgentConfig } from '@/lib/agent';
 import { ReceiptView } from '@/components/receipt/ReceiptView';
 
 const PRESETS: { id: string; n: string; title: string; how: string; kind: 'attack' | 'honest'; expect: string }[] = [
   { id: 'forged-screenshot', n: '01', title: 'Forged screenshot', how: 'Claims with a made-up reference and a doctored alert.', kind: 'attack', expect: 'NO_PAYMENT_AT_PSP' },
-  { id: 'short-payment', n: '02', title: 'Short payment', how: 'Really pays, but ₦1,000 of the ₦1,500 price.', kind: 'attack', expect: 'AMOUNT_SHORT' },
+  { id: 'short-payment', n: '02', title: 'Short payment', how: 'Really pays, but only two-thirds of the price.', kind: 'attack', expect: 'AMOUNT_SHORT' },
   { id: 'wrong-trade', n: '03', title: 'Someone else’s payment', how: 'Pays in full, for a different trade, and claims this one.', kind: 'attack', expect: 'TRADE_MISMATCH' },
   { id: 'replay', n: '04', title: 'Replay', how: 'Reuses a payment that already released a trade.', kind: 'attack', expect: 'REF_REUSED' },
   { id: 'honest', n: '05', title: 'Honest buyer', how: 'Pays in full and on time, then claims.', kind: 'honest', expect: 'RELEASED' },
@@ -47,7 +47,7 @@ export function LiveDemo() {
   }
 
   const terms = config
-    ? `Each run locks ${formatUsdc(config.demo.tokenUnits)} for ${formatNaira(config.demo.priceKobo)} in the deployed escrow and pays with Paystack’s test card.`
+    ? `Each run locks ${formatUsdc(config.demo.tokenUnits)} in the deployed escrow and pays with the processor’s test card (Paystack test mode).`
     : configError
       ? `Agent unavailable: ${configError}`
       : 'Reading terms from the agent…';

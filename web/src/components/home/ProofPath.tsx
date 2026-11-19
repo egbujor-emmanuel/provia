@@ -17,7 +17,7 @@ const NODES = [
 
 const STEPS = [
   { key: 'PROVE', title: 'Prove the payment', body: 'zkTLS records what Paystack’s TLS server sent: status, amount, currency, time and trade id. Reclaim’s attestors sign it; the official verifier checks the signer and the exact request.' },
-  { key: 'POLICY', title: 'Prove the rules', body: 'One circuit checks success, NGN, full amount, before the deadline, this trade, and derives a one-time nullifier from the reference. Fail any rule and no proof exists.' },
+  { key: 'POLICY', title: 'Prove the rules', body: 'One circuit checks success, the trade currency, the full amount, before the deadline, this trade, and derives a one-time nullifier from the reference. Fail any rule and no proof exists.' },
   { key: 'VERIFY', title: 'Verify on zkVerify', body: 'Kurier submits the proof to zkVerify mainnet for finality and to testnet, where it is aggregated and the root relayed to Base Sepolia.' },
   { key: 'RELEASE', title: 'Release, or nothing', body: 'The escrow rebuilds the leaf from its own trade data, asks zkVerify’s proxy to check the aggregation, burns the nullifier and pays the recorded buyer.' },
 ];

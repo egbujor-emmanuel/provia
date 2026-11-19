@@ -61,7 +61,7 @@ export function EscrowWatch() {
         {webgl ? (
           <TruthLens onUnsupported={onUnsupported} />
         ) : (
-          <div className="grid h-full place-items-center p-6 text-center font-mono text-sm text-paper/80">Forged alert ₦1,500.00 → Paystack: no such transaction → REFUSED</div>
+          <div className="grid h-full place-items-center p-6 text-center font-mono text-sm text-paper/80">Forged alert $1,500.00 → processor: no such transaction → REFUSED</div>
         )}
         <p className="pointer-events-none absolute bottom-2 left-3 font-mono text-[10px] uppercase tracking-[0.16em] text-paper/50">Hover the alert · the lens shows what Paystack says</p>
       </div>
