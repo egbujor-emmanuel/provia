@@ -119,7 +119,11 @@ export async function runClaim(deps: PipelineDeps, receipt: Receipt, message: st
           },
         });
       } catch (e) {
-        throw new Refused('ZKTLS_INVALID', `zkTLS proof could not be produced: ${(e as Error).message.slice(0, 160)}`);
+        const err = e as Error & { status?: number };
+        if (err.name === 'BuilderQuotaExceededError' || err.status === 402 || err.status === 429) {
+          throw new Refused('ZKTLS_INVALID', 'payment proofs paused: the free zkTLS quota for this period is used up');
+        }
+        throw new Refused('ZKTLS_INVALID', `zkTLS proof could not be produced: ${err.message.slice(0, 160)}`);
       }
       let c: PaymentClaim;
       try {

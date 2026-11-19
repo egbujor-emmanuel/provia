@@ -135,7 +135,7 @@ app.get('/api/trades/:tradeId', async (c) => {
   return c.json({ ...t, tradeId: id, tokenAmount: t.tokenAmount.toString(), priceKobo: t.priceKobo.toString(), deadline: t.deadline.toString() });
 });
 
-app.get('/api/receipts', (c) => c.json(store.list(50).map(({ id, tradeId, scenario, outcome, refusal, createdAt, updatedAt }) => ({ id, tradeId, scenario, outcome, refusal, createdAt, updatedAt }))));
+app.get('/api/receipts', (c) => c.json(store.list(60).filter((r) => r.scenario !== 'setup-check').slice(0, 50).map(({ id, tradeId, scenario, outcome, refusal, createdAt, updatedAt }) => ({ id, tradeId, scenario, outcome, refusal, createdAt, updatedAt }))));
 
 app.get('/api/receipts/:id', (c) => {
   const r = store.get(c.req.param('id'));
