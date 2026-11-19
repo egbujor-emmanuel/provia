@@ -6,6 +6,9 @@ import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { runScenario } from '@/lib/live';
 import { EscrowWatch } from './EscrowWatch';
+import dynamic from 'next/dynamic';
+
+const HeroPaper = dynamic(() => import('./HeroPaper').then((m) => m.HeroPaper), { ssr: false });
 
 const PRESETS = [
   { id: 'forged-screenshot', label: 'Forged screenshot', stamp: 'REFUSED' },
@@ -30,11 +33,12 @@ export function Hero() {
   );
 
   return (
-    <section ref={root} aria-labelledby="hero-heading" className="relative overflow-hidden border-b border-rule pt-24 sm:pt-28">
+    <section ref={root} aria-labelledby="hero-heading" className="relative isolate overflow-hidden border-b border-rule pt-24 sm:pt-28">
+      <HeroPaper />
       <div className="mx-auto grid max-w-[1280px] gap-10 px-4 pb-16 sm:px-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-12 lg:pb-20">
         <div className="lg:pt-6">
           <p className="hero-in font-mono text-[11px] uppercase tracking-[0.2em] text-ink-3">Escrow agent · fiat → crypto · zkVerify</p>
-          <h1 id="hero-heading" className="hero-in mt-4 font-display text-[clamp(2.4rem,1.5rem+3.2vw,4.1rem)] leading-[1.02] tracking-[-0.015em]">
+          <h1 id="hero-heading" className="hero-in mt-4 font-display text-[clamp(2.2rem,1.5rem+2.2vw,3.35rem)] leading-[1.05] tracking-[-0.015em]">
             Crypto escrow that releases only on a verified payment proof.
           </h1>
           <p className="hero-in mt-5 max-w-[34rem] text-[17px] leading-relaxed text-ink-2">
