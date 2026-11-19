@@ -12,7 +12,7 @@ export function AgentStatus() {
   useEffect(() => {
     let alive = true;
     getConfig()
-      .then((c) => alive && setState({ kind: 'live', allReady: ['chain', 'kurier', 'paystack', 'zkTls'].every((k) => c.ready[k]) }))
+      .then((c) => alive && setState({ kind: 'live', allReady: ['chain', 'kurier', 'paystack', 'zkTls', 'gas'].every((k) => c.ready[k] !== false) }))
       .catch((e: Error) => alive && setState({ kind: 'down', message: e.message }));
     return () => {
       alive = false;

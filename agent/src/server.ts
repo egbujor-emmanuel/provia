@@ -76,8 +76,25 @@ app.post('/agent', async (c) => {
   return new Response(out.body, { status: out.status, headers });
 });
 
-app.get('/api/config', (c) =>
-  c.json({
+/** Deployer gas, cached for a minute: enough for ~100 trades at Base Sepolia's real fee. */
+const MIN_GAS_WEI = 20_000_000_000_000n; // 0.00002 ETH
+let gasCache: { at: number; ok: boolean; wei: string } | null = null;
+async function gasStatus(): Promise<{ ok: boolean; wei: string }> {
+  if (gasCache && Date.now() - gasCache.at < 60_000) return gasCache;
+  try {
+    const addr = chain.signerAddress;
+    if (!addr) return { ok: false, wei: '0' };
+    const wei = BigInt((await chain.provider.getBalance(addr)).toString());
+    gasCache = { at: Date.now(), ok: wei >= MIN_GAS_WEI, wei: wei.toString() };
+    return gasCache;
+  } catch {
+    return { ok: false, wei: 'unavailable' };
+  }
+}
+
+app.get('/api/config', async (c) => {
+  const gas = await gasStatus();
+  return c.json({
     escrow: { address: DEPLOYMENT.address, chainId: DEPLOYMENT.chainId, explorer: `https://sepolia.basescan.org/address/${DEPLOYMENT.address}` },
     zkVerify: { vkHash: DEPLOYMENT.constructor.vkHash, proxy: DEPLOYMENT.constructor.zkVerify, aggregationDomain: AGGREGATION_DOMAIN.baseSepolia, aggregationChainId: BASE_SEPOLIA_CHAIN_ID },
     token: { address: DEPLOYMENT.constructor.token, symbol: 'USDC', decimals: 6, network: 'Base Sepolia (test)' },
@@ -90,9 +107,11 @@ app.get('/api/config', (c) =>
       paystack: Boolean(env.PAYSTACK_SECRET_KEY?.startsWith('sk_test_')),
       zkTls: Boolean(env.RECLAIM_ORG_TOKEN?.startsWith('rorg_')),
       agentGames: Boolean(env.AGENT_GAMES_HMAC_SECRET),
+      gas: gas.ok,
     },
-  }),
-);
+    deployerGasWei: gas.wei,
+  });
+});
 
 app.post('/api/demo/:scenario', async (c) => {
   const scenario = c.req.param('scenario');
