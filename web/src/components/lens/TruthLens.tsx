@@ -55,7 +55,7 @@ function Card({ surface, truth, pointer, still }: { surface: THREE.Texture; trut
   const mesh = useRef<THREE.Mesh>(null);
   const { viewport } = useThree();
   const aspect = TEX_W / TEX_H;
-  const width = Math.min(viewport.width * 0.9, viewport.height * 0.86 * aspect);
+  const width = Math.min(viewport.width * 0.82, viewport.height * 0.78 * aspect);
   const height = width / aspect;
   const target = useRef(new THREE.Vector2(0.45, 0.55));
   const tilt = useRef(new THREE.Vector2());
@@ -65,7 +65,7 @@ function Card({ surface, truth, pointer, still }: { surface: THREE.Texture; trut
       uA: { value: surface },
       uB: { value: truth },
       uMouse: { value: new THREE.Vector2(0.45, 0.55) },
-      uRadius: { value: 0.31 },
+      uRadius: { value: 0.33 },
       uAspect: { value: aspect },
       uReveal: { value: still ? 1 : 0 },
     }),

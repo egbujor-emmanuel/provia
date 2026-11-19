@@ -108,8 +108,8 @@ export function drawTruth(scale: number): HTMLCanvasElement {
   ctx.font = `700 30px ${f.mono}`;
   ctx.fillText('← 400 Transaction reference not found', L.padX, L.chipY);
 
-  ctx.font = `400 150px ${f.serif}`;
-  ctx.fillText('No payment.', L.padX, L.amountY - 10);
+  ctx.font = `400 128px ${f.serif}`;
+  ctx.fillText('No payment.', L.padX + 10, L.amountY - 22);
 
   ctx.fillStyle = '#e4e0d7';
   ctx.font = `400 34px ${f.mono}`;

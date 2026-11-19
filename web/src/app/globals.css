@@ -2,22 +2,22 @@
 @import "lenis/dist/lenis.css";
 
 :root {
-  /* Provia: receipt paper, ink, and the two stamps. Vermilion = refused, green = verified. */
-  --paper: #f3efe6;
-  --paper-2: #ebe5d8;
-  --card: #fbf8f1;
-  --ink: #15140f;
-  --ink-2: #4b4840;
-  --ink-3: #827d72;
-  --rule: #d9d2c3;
-  --ok: #0f7a4a;
-  --ok-soft: #dcefe3;
-  --no: #d6361f;
-  --no-soft: #f8ddd6;
-  --run: #a86400;
-  --run-soft: #f4e5c8;
-  --field: #15140f;
-  color-scheme: light;
+  /* Dark stage. Receipt paper lives only inside the forged alert. Vermilion = refused, green = verified. */
+  --paper: #0a0b0d;
+  --paper-2: #111216;
+  --card: #15161a;
+  --ink: #ecebe7;
+  --ink-2: #a9a7a1;
+  --ink-3: #76746e;
+  --rule: #26272c;
+  --ok: #3ddc84;
+  --ok-soft: #0f2419;
+  --no: #ff5a3c;
+  --no-soft: #2b120c;
+  --run: #f2b33d;
+  --run-soft: #2a200c;
+  --field: #ecebe7;
+  color-scheme: dark;
 }
 
 @theme inline {
