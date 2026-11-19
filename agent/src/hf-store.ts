@@ -28,7 +28,15 @@ export class HfReceiptMirror {
   async loadAll(): Promise<Receipt[]> {
     await this.ensureRepo();
     const out: Receipt[] = [];
-    for await (const entry of listFiles({ repo: this.#repo, path: 'receipts', accessToken: this.#token })) {
+    const entries = [];
+    try {
+      for await (const entry of listFiles({ repo: this.#repo, path: 'receipts', accessToken: this.#token })) entries.push(entry);
+    } catch (e) {
+      // A new dataset has no receipts/ folder until the first receipt is written.
+      if (/does not exist/i.test((e as Error).message)) return out;
+      throw e;
+    }
+    for (const entry of entries) {
       if (entry.type !== 'file' || !entry.path.endsWith('.json')) continue;
       const blob = await downloadFile({ repo: this.#repo, path: entry.path, accessToken: this.#token });
       if (!blob) continue;

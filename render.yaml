@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: provia-agent
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: master
+    buildCommand: npm ci --workspace @provia/agent --include-workspace-root=false --ignore-scripts
+    startCommand: node agent/src/server.ts
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: ZKTLS_MODE
+        value: tee
+      - key: HF_RECEIPTS_REPO
+        value: Attrito/provia-receipts
+      - key: HF_TOKEN
+        sync: false
+      - key: DEPLOYER_PRIVATE_KEY
+        sync: false
+      - key: KURIER_API_KEY_TESTNET
+        sync: false
+      - key: KURIER_API_KEY_MAINNET
+        sync: false
+      - key: PAYSTACK_SECRET_KEY
+        sync: false
+      - key: RECLAIM_ORG_TOKEN
+        sync: false
+      - key: AGENT_GAMES_HMAC_SECRET
+        sync: false
