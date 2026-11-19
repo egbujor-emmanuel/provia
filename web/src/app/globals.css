@@ -1,0 +1,103 @@
+@import "tailwindcss";
+@import "lenis/dist/lenis.css";
+
+:root {
+  /* Provia: receipt paper, ink, and the two stamps. Vermilion = refused, green = verified. */
+  --paper: #f3efe6;
+  --paper-2: #ebe5d8;
+  --card: #fbf8f1;
+  --ink: #15140f;
+  --ink-2: #4b4840;
+  --ink-3: #827d72;
+  --rule: #d9d2c3;
+  --ok: #0f7a4a;
+  --ok-soft: #dcefe3;
+  --no: #d6361f;
+  --no-soft: #f8ddd6;
+  --run: #a86400;
+  --run-soft: #f4e5c8;
+  --field: #15140f;
+  color-scheme: light;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-rule: var(--rule);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --color-no: var(--no);
+  --color-no-soft: var(--no-soft);
+  --color-run: var(--run);
+  --color-run-soft: var(--run-soft);
+  --color-field: var(--field);
+  --color-card: var(--card);
+  --font-display: var(--font-serif);
+  --font-sans: var(--font-grotesk);
+  --font-mono: var(--font-mono-face);
+}
+
+html {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-grotesk), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.hash {
+  font-family: var(--font-mono-face), ui-monospace, monospace;
+  font-size: 0.85em;
+  overflow-wrap: anywhere;
+}
+
+.grain {
+  background-image: radial-gradient(color-mix(in oklab, var(--ink) 7%, transparent) 1px, transparent 1px);
+  background-size: 3px 3px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Mono uppercase command labels, as in "> RUN THE ATTACK <". */
+.cmd {
+  font-family: var(--font-mono-face), ui-monospace, monospace;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.scanlines {
+  background-image: repeating-linear-gradient(0deg, color-mix(in oklab, var(--ink) 5%, transparent) 0 1px, transparent 1px 4px);
+}
+
+/* Receipt tear edge for cards. */
+.perforated {
+  background-image: radial-gradient(circle at 8px 0, transparent 5px, var(--card) 5.5px);
+  background-size: 16px 10px;
+  background-repeat: repeat-x;
+}
