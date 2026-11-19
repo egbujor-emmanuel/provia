@@ -1,0 +1,30 @@
+<template>
+  <style>
+    #root { position: absolute; inset: 0; background: #0a0b0d; overflow: hidden; font-family: Inter, sans-serif; }
+    #root .cam { position: absolute; inset: 0; overflow: hidden; }
+    #root .cam img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    #root .cursor { position: absolute; left: 0; top: 0; width: 44px; height: 44px; z-index: 5; filter: drop-shadow(0 3px 6px rgba(0,0,0,.55)); }
+    #root .ring { position: absolute; left: 0; top: 0; width: 60px; height: 60px; border-radius: 50%; border: 4px solid #3ddc84; z-index: 4; }
+    #root .cap { position: absolute; left: 96px; right: 96px; bottom: 84px; display: flex; align-items: center; gap: 22px; z-index: 6; }
+    #root .tag { flex: none; background: #3ddc84; color: #06140c; font: 700 30px/1 'Space Mono', monospace; padding: 16px 22px; border-radius: 12px; }
+    #root .txt { background: rgba(10,11,13,.9); color: #fff; font-weight: 700; font-size: 42px; line-height: 1.2; padding: 18px 28px; border-radius: 14px; box-shadow: 0 18px 40px rgba(0,0,0,.45); }
+    #root .end { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #fff; }
+    #root .end img { width: 220px; height: 220px; border-radius: 48px; }
+    #root .end p:nth-of-type(1) { margin-top: 34px; font-size: 96px; font-weight: 900; letter-spacing: -0.02em; }
+    #root .end p:nth-of-type(2) { margin-top: 14px; font-size: 38px; color: #c9c6bf; }
+    #root .end p:nth-of-type(3) { margin-top: 40px; font: 700 40px/1 'Space Mono', monospace; color: #3ddc84; }
+    #root .end p:nth-of-type(4) { margin-top: 22px; font: 400 28px/1 'Space Mono', monospace; color: #8a8780; }
+  </style>
+  <div id="root" data-composition-id="s7" data-width="1920" data-height="1080">
+    <div id="s7-a" class="clip cam" data-start="0" data-duration="7.1" data-layout-allow-overflow><img id="s7-a-img" src="assets/shots/05-honest-released.png" alt="" /></div>
+    <div id="s7-cap" class="clip cap" data-start="0.45" data-duration="6.65">
+      <span id="s7-txt" class="txt">Verified on zkVerify · the escrow pays the buyer</span>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#s7-a-img", { scale: 1.05, transformOrigin: "32.3% 38.9%" }, { scale: 1.32, duration: 7.1, ease: "power1.inOut" }, 0);
+    tl.fromTo("#s7-cap > *", { y: 24, opacity: 0 }, { y: 0, opacity: 1, duration: 0.45, stagger: 0.08, ease: "power3.out" }, 0.45);
+    window.__timelines["s7"] = tl;
+  </script>
+</template>

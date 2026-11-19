@@ -1,0 +1,13 @@
+[
+ {"id":"s1","shot":"01-home.png","show":"This is Provia, a crypto escrow agent. It pays out only when a payment is proven.","say":"This is Provia, a crypto escrow agent. It pays out only when a payment is proven. Here is how to use it."},
+ {"id":"s2","shot":"01-home.png","show":"Step 1 · Open the site. No wallet needed.","say":"Step one. Open the site. You do not need a wallet. Move your mouse over the alert to see what the processor really says."},
+ {"id":"s3","shot":"02-forged-running.png","show":"Step 2 · Click “Try a forged payment”","say":"Step two. Click, try a forged payment. Provia locks a real trade, then checks the payment."},
+ {"id":"s4","shot":"03-forged-refused.png","show":"Refused · NO_PAYMENT_AT_PSP · no money moves","say":"The payment does not exist, so Provia refuses it. No money moves, and you get a clear reason."},
+ {"id":"s5","shot":"03-forged-refused.png","show":"Try the other attacks: short payment · someone else’s payment · replay","say":"Try the other attacks too. Paying too little, using someone else's payment, or reusing an old one. Each one is refused."},
+ {"id":"s6","shot":"04-honest-running.png","show":"Step 3 · Click “Honest buyer” and watch each step","say":"Step three. Click, honest buyer. Watch each step. First the payment is proven, then the trade rules are proven."},
+ {"id":"s7","shot":"05-honest-released.png","show":"Verified on zkVerify · the escrow pays the buyer","say":"The proof is checked on Z K Verify. About ninety seconds later, the escrow pays the buyer."},
+ {"id":"s8","shot":"06-receipt.png","show":"Step 4 · Open the public receipt","say":"Step four. Open the public receipt. Every step is listed, with a link you can check yourself."},
+ {"id":"s9","shot":"07-release-explorer.png","show":"The release on Base Sepolia: 0.05 USDC to the buyer","say":"Here is the release on the Base Sepolia explorer. The buyer received the coins."},
+ {"id":"s10","shot":"08-zkverify-mainnet.png","show":"The proof, verified on zkVerify mainnet","say":"And here is the proof, verified on Z K Verify mainnet."},
+ {"id":"s11","shot":"end","show":"provia-ten.vercel.app","say":"That is Provia. Try it yourself, at provia ten, dot vercel, dot app."}
+]

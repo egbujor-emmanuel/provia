@@ -12,8 +12,8 @@ const deployment = JSON.parse(readFileSync('evidence/deployment-base-sepolia.jso
 
 /** Live runs that back the public claims (receipt ids on the deployed agent). */
 const RUNS = [
-  { id: '3cf7a978-730b-42a1-a54c-9ec77c743eda', scenario: 'honest', expect: 'released' },
-  { id: '646b988f-74c5-40b4-a41b-5292f34eee85', scenario: 'forged-screenshot', expect: 'NO_PAYMENT_AT_PSP' },
+  { id: '424e142f-33f3-494d-99d2-f59a0467b60b', scenario: 'honest', expect: 'released' },
+  { id: '29ac5c6c-44fc-49c2-8ea9-a17480697036', scenario: 'forged-screenshot', expect: 'NO_PAYMENT_AT_PSP' },
   { id: 'e2734178-a79e-4b8a-a377-35e421e71132', scenario: 'short-payment', expect: 'AMOUNT_SHORT' },
   { id: 'ebfb2e28-ba36-4729-b84e-35f5c3c4b65c', scenario: 'wrong-trade', expect: 'TRADE_MISMATCH' },
   { id: '53fbed2f-213b-4dd6-9969-a2858a05b193', scenario: 'replay', expect: 'REF_REUSED' },
