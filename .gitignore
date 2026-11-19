@@ -8,3 +8,4 @@ contracts/artifacts/
 contracts/cache/
 .next/
 dist/
+agent/data/

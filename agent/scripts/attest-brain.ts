@@ -41,7 +41,7 @@ writeFileSync(
       gpuEvidencePresent: brain.hasGpuEvidence,
       fmspc,
       tcbValidity: { issueDate: vk.issueDate, nextUpdate: vk.nextUpdate },
-      zkVerify: { network: result.network, pallet: 'settlementTeePallet', ...result },
+      zkVerify: { pallet: 'settlementTeePallet', ...result },
       explorer: `https://zkverify-testnet.subscan.io/extrinsic/${result.txHash}`,
     },
     null,

@@ -15,10 +15,10 @@ First live rail: naira via Paystack. It has an open verify API and is unserved b
 `LOCK → PAY → PROVE → VERIFY ON zkVERIFY → RELEASE` and the attack: `FAKE PROOF → REFUSED`.
 1. **Lock.** The seller creates a trade (price in kobo, amount of test USDC, buyer's payout address, deadline) and deposits USDC into `ProviaEscrow` on Base Sepolia.
 2. **Pay.** The buyer pays the naira price via Paystack checkout (test mode). The trade id is in the Paystack metadata.
-3. **Claim.** The buyer tells the agent "I've paid", optionally with a screenshot. The LLM (NEAR AI, TEE) reads the message and extracts the claimed reference. It **recommends** only.
+3. **Claim.** The buyer tells the agent "I've paid" in their own words. A deterministic parser extracts the Paystack reference (no paid model; decided 2026-11-19, zero budget). It only reads the claim; it never decides.
 4. **Prove payment (zkTLS).** The agent runs Reclaim zkFetch on `GET https://api.paystack.co/transaction/verify/:reference`. The secret key is hidden; status, amount, currency, paid_at, reference and metadata.trade_id are revealed.
 5. **Policy proof (Groth16).** The agent proves `release_policy.circom` (§6) and submits it to Kurier: **testnet with chainId 84532** (aggregated to Base Sepolia) **and mainnet** (zkVerify mainnet finality).
-6. **Attested brain (TEE).** The LLM's NEAR AI TDX quote is verified natively on zkVerify Volta `settlementTeePallet`. Its signing address is bound in the TDX report data and signs every completion the agent used.
+6. **TEE integration (evidence, not a product claim).** zkVerify Volta `settlementTeePallet` verified a NEAR AI Intel TDX quote (evidence/brain-attestation.json). Provia does not call NEAR AI inference (zero budget), so no claim is made that the agent runs in that enclave.
 7. **Release.** `ProviaEscrow.release(...)` rebuilds the leaf from public inputs + vkHash, checks `verifyProofAggregation` on the zkVerify proxy, burns the nullifier and pays the buyer.
 8. **Refund.** After the deadline with no release, the seller reclaims.
 
@@ -26,13 +26,13 @@ First live rail: naira via Paystack. It has an open verify API and is unserved b
 `NO_PAYMENT_AT_PSP` (Paystack says not found / not success) · `AMOUNT_SHORT` · `WRONG_CURRENCY` · `PAID_AFTER_DEADLINE` · `REF_REUSED` (nullifier seen) · `TRADE_MISMATCH` (metadata.trade_id ≠ trade) · `PROOF_NOT_FINALIZED` · `ZKTLS_INVALID` · `TRADE_NOT_LOCKED` · `EXPIRED`.
 
 ## §5 Invariants (never violate)
-- **The LLM never decides release.** Deterministic code plus proofs decide. The model output is advisory and shown.
+- **No model decides release.** Deterministic code plus proofs decide. The claim parser only extracts a reference.
 - **Fail closed.** Timeouts, errors or uncertainty mean refuse.
 - **The contract rebuilds the leaf itself.** It never accepts a caller-supplied leaf (the Elenchos bug class).
 - **Nullifier = Poseidon(paystack reference).** One payment, one release, ever.
 - **Money is integers**: kobo for NGN, 6-decimal units for USDC. No floats.
 - **Zero mock data.** Every figure comes from a live API or chain read. If a value is unavailable, show "unavailable", never a guess. A banner shows real vs demo.
-- Secrets (Paystack sk_test, Kurier keys, NEAR AI key, deployer key, Agent Games HMAC) come only from env and never appear in logs, prompts or the repo.
+- Secrets (Paystack sk_test, Kurier keys, Reclaim org token, deployer key, Agent Games HMAC) come only from env and never appear in logs, prompts or the repo.
 
 ## §6 Circuit `release_policy.circom` (Groth16 / BN128)
 - Public output: `nullifier = Poseidon(refHi, refLo)`.
@@ -42,7 +42,7 @@ First live rail: naira via Paystack. It has an open verify API and is unserved b
 - `claimCommit` links the proof to the zkTLS claim. Anyone can recompute it from the published Reclaim proof's revealed fields.
 
 ## §7 Architecture
-`web/` (Next.js, GSAP + Lenis) → `agent/` (Node TS: trade API, Agent Games `/agent` HMAC endpoint, Paystack, Reclaim, prover, Kurier, zkverifyjs TEE, NEAR AI) → `circuits/` → `contracts/` (Hardhat, `ProviaEscrow`) → zkVerify (mainnet, Volta) + Base Sepolia.
+`web/` (Next.js, GSAP + Lenis) → `agent/` (Node TS: trade API, Agent Games `/agent` HMAC endpoint, Paystack, Reclaim, prover, Kurier, zkverifyjs TEE evidence) → `circuits/` → `contracts/` (Hardhat, `ProviaEscrow`) → zkVerify (mainnet, Volta) + Base Sepolia.
 
 ## §8 Judge surfaces
 - No wallet gate on `/`. Live presets and "Judges, start here".
