@@ -145,6 +145,17 @@ export class Chain {
     return this.#send(this.escrow.lock(...params));
   }
 
+  /** Seller reclaims an unreleased trade after its deadline. Simulated before sending. */
+  async refund(tradeId: bigint): Promise<TxReceipt> {
+    this.#requireSigner();
+    try {
+      await this.escrow.callStatic.refund(tradeId.toString());
+    } catch (e) {
+      throw new Error(`refund would revert: ${revertReason(e)}`);
+    }
+    return this.#send(this.escrow.refund(tradeId.toString()));
+  }
+
   /** Anyone may release; funds can only go to the recorded recipient. Simulated before sending. */
   async release(tradeId: bigint, nullifier: bigint, claimCommit: bigint, att: AggregationAttestation): Promise<TxReceipt> {
     this.#requireSigner();

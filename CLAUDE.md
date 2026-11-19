@@ -12,9 +12,9 @@ Wildcard criteria are quoted from agentgames.zkverify.io/events/wildcard. The si
 | Criterion (quoted) | Weight | What wins it in Provia |
 |---|---|---|
 | **Useful problem**: "Show a clear need, who the agent helps, and why its work matters." | 30 | Forged payment proofs in P2P trades; sellers lose crypto. A cold open on a fake proof being refused |
-| **Working implementation**: "see the agent in action." | 30 | Live site; real Paystack test payment → real Reclaim proof → zkVerify mainnet + Volta + Base Sepolia release, all linked |
+| **Working implementation**: "see the agent in action." | 30 | Live site; real Paystack test payment → real Reclaim proof → zkVerify mainnet finality + testnet aggregation → Base Sepolia release, all linked |
 | **Clear explanation**: "workflow, key choices, what the agent can and cannot do." | 20 | `/how-it-works`, JUDGES.md five-minute path, THREAT_MODEL.md, typed refusal codes |
-| **Verifiability (optional plus)**: "If zkVerify makes an important claim checkable…" | 15 | Four checkable claims: payment (zkTLS), policy (Groth16 on zkVerify mainnet), brain (TDX quote on the zkVerify TEE pallet, a first), release (aggregation on Base Sepolia) |
+| **Verifiability (optional plus)**: "If zkVerify makes an important claim checkable…" | 15 | Three checkable claims: payment (zkTLS, Reclaim), policy (Groth16 on zkVerify mainnet + testnet), release (zkVerify aggregation checked on Base Sepolia). Plus evidence: zkVerify's TEE pallet verified a NEAR AI TDX quote (integration evidence, not a claim about Provia's agent) |
 | **Bonus**: public share | 5 | X thread with #AgentGames and @ZKVProtocol (also the Creator Track entry) |
 
 Creator Track criteria: "Technical substance · Clarity · zkVerify relevance · Originality."
@@ -27,7 +27,7 @@ Creator Track criteria: "Technical substance · Clarity · zkVerify relevance ·
 - **ZKP2P:** US/EU rails, not an agent, no zkVerify.
 - **Beanstick:** simulated zkTLS.
 
-Provia's differences: real zkTLS on a fiat rail, every claim verified **on zkVerify**, a TEE-attested agent brain on zkVerify's TEE pallet, and an attack-first demo.
+Provia's differences: real zkTLS on a fiat rail, every claim verified **on zkVerify**, zkVerify's aggregation verified on-chain by the escrow itself, and an attack-first demo.
 
 ## 3. Live-verified facts (re-check with `/verify-chain`; dates are verification dates)
 - zkVerify mainnet `wss://zkverify-rpc.zkverify.io` (spec 2000000) and Volta `wss://volta-rpc.zkverify.io` (spec 2001000) both run `settlementTeePallet`. Verified 2026-11-19.
@@ -39,7 +39,7 @@ Provia's differences: real zkTLS on a fiat rail, every claim verified **on zkVer
 - More gotchas: `~/.claude/skills/zkverify/SKILL.md`.
 
 ## 4. Engineering invariants (PRD §5)
-- The LLM proposes; proofs and deterministic code dispose.
+- No model decides. Deterministic code and proofs decide (zero budget: no paid inference).
 - Fail closed.
 - The contract rebuilds the leaf.
 - Integer money only.

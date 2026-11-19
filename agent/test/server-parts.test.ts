@@ -5,7 +5,7 @@ import { sign, verify } from '../src/hmac.ts';
 import { parseClaimMessage } from '../src/claim-parse.ts';
 import { RateLimiter } from '../src/rate-limit.ts';
 import { tradeIdFromMetadata, unixSeconds } from '../src/paystack.ts';
-import { expectedHashes, verifyUrl, contextMessage } from '../src/zktls.ts';
+import { expectedFieldHashes, verifyUrl, contextMessage } from '../src/zktls.ts';
 
 const SECRET = 'test-secret-from-rotate';
 const preflight = JSON.stringify({ type: 'agent-games.preflight.v1', agent_id: 'agt_1', issued_at: '2026-11-19T00:00:00Z', nonce: 'abc123' });
@@ -80,8 +80,9 @@ test('paystack helpers: tradeId only from a clean positive integer string; ISO t
 });
 
 test('zkTLS binding: request hash depends on the reference; context names the trade', () => {
-  assert.notDeepEqual(expectedHashes('refAAAA1111'), expectedHashes('refBBBB2222'));
-  assert.deepEqual(expectedHashes('refAAAA1111'), expectedHashes('refAAAA1111'));
+  assert.notDeepEqual(expectedFieldHashes('refAAAA1111', 'amount'), expectedFieldHashes('refBBBB2222', 'amount'));
+  assert.notDeepEqual(expectedFieldHashes('refAAAA1111', 'amount'), expectedFieldHashes('refAAAA1111', 'status'));
+  assert.deepEqual(expectedFieldHashes('refAAAA1111', 'amount'), expectedFieldHashes('refAAAA1111', 'amount'));
   assert.equal(verifyUrl('a/b'), 'https://api.paystack.co/transaction/verify/a%2Fb');
   assert.equal(contextMessage(7n), 'provia:trade:7');
 });

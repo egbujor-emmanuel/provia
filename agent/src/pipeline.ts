@@ -4,7 +4,7 @@ import { evaluateRelease, type PaymentClaim, type Trade } from './policy.ts';
 import { REFUSALS, type RefusalCode } from './refusals.ts';
 import { parseClaimMessage } from './claim-parse.ts';
 import { verifyTransaction } from './paystack.ts';
-import { provePaystackTransaction, claimFromProof, type ZkTlsProof } from './zktls.ts';
+import { provePaystackTransaction, claimFromProofs, type FieldProof } from './zktls.ts';
 import { buildCircuitInput, nullifierFor } from './circuit-input.ts';
 import { proveRelease } from './prover.ts';
 import { KurierClient, AGGREGATION_DOMAIN, BASE_SEPOLIA_CHAIN_ID, toAttestation } from './kurier.ts';
@@ -103,23 +103,34 @@ export async function runClaim(deps: PipelineDeps, receipt: Receipt, message: st
     });
 
     const { claim } = await step(store, receipt, 'zktls', 'Prove the Paystack response with zkTLS', async (s) => {
-      let p: ZkTlsProof;
+      let p: FieldProof[];
+      const proved: string[] = [];
       try {
-        p = await provePaystackTransaction({ reference, tradeId, contextAddress: onchain.recipient, orgToken: deps.reclaimOrgToken, paystackKey: deps.paystackKey });
+        p = await provePaystackTransaction({
+          reference,
+          tradeId,
+          contextAddress: onchain.recipient,
+          orgToken: deps.reclaimOrgToken,
+          paystackKey: deps.paystackKey,
+          onField: (field, ms) => {
+            proved.push(`${field} ${Math.round(ms / 1000)}s`);
+            s.detail = `proved ${proved.length}/5 fields: ${proved.join(', ')}`;
+            store.save(receipt);
+          },
+        });
       } catch (e) {
         throw new Refused('ZKTLS_INVALID', `zkTLS proof could not be produced: ${(e as Error).message.slice(0, 160)}`);
       }
       let c: PaymentClaim;
       try {
-        c = await claimFromProof(p, { reference, tradeId, contextAddress: onchain.recipient });
+        c = await claimFromProofs(p, { reference, tradeId, contextAddress: onchain.recipient });
       } catch (e) {
         throw new Refused(/different trade/.test((e as Error).message) ? 'TRADE_MISMATCH' : 'ZKTLS_INVALID', (e as Error).message);
       }
       s.data = {
         revealed: { status: c.status, amountKobo: c.amountKobo.toString(), currency: c.currency, paidAt: c.paidAt.toString(), reference: c.reference, tradeId: c.tradeId.toString() },
-        attestor: p.witnesses[0]?.id,
-        claimId: p.claimData.identifier,
-        reclaimProof: p,
+        attestors: [...new Set(p.map((x) => x.proof.witnesses[0]?.id))],
+        reclaimProofs: p,
       };
       return { claim: c };
     });
