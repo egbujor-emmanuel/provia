@@ -1,0 +1,12 @@
+**/node_modules
+web
+contracts/artifacts
+contracts/cache
+circuits/build
+spikes
+docs
+research
+.env
+.env.*
+.git
+agent/data
