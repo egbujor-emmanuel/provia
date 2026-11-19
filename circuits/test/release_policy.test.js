@@ -7,10 +7,11 @@ import * as snarkjs from 'snarkjs';
 import { buildPoseidon } from 'circomlibjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const build = join(here, '..', 'build');
-const WASM = join(build, 'release_policy_js', 'release_policy.wasm');
-const ZKEY = join(build, 'release_policy_final.zkey');
-const VKEY = JSON.parse(readFileSync(join(build, 'verification_key.json'), 'utf8'));
+// Tests run against the frozen artifacts the deployed escrow trusts (circuits/artifacts/README.md).
+const artifacts = join(here, '..', 'artifacts');
+const WASM = join(artifacts, 'release_policy.wasm');
+const ZKEY = join(artifacts, 'release_policy_final.zkey');
+const VKEY = JSON.parse(readFileSync(join(artifacts, 'verification_key.json'), 'utf8'));
 
 const NGN = 566n;
 let poseidon;

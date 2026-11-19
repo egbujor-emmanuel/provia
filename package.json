@@ -2,7 +2,7 @@
   "name": "provia",
   "private": true,
   "type": "module",
-  "workspaces": ["circuits", "contracts"],
+  "workspaces": ["circuits", "contracts", "agent"],
   "engines": { "node": ">=24" },
   "scripts": {
     "circuits:build": "npm run build --workspace @provia/circuits",

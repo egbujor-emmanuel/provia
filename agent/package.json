@@ -1,0 +1,7 @@
+{
+  "name": "@provia/agent",
+  "private": true,
+  "type": "module",
+  "scripts": { "vk-hash": "node scripts/vk-hash.mjs" },
+  "dependencies": { "zkverifyjs": "3.4.0" }
+}
