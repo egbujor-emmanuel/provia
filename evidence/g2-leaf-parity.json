@@ -1,0 +1,22 @@
+{
+  "spike": "G2 leaf parity (labelled spike claim, not a product payment)",
+  "checkedAt": "2026-11-19T15:10:08.613Z",
+  "kurierNetwork": "testnet",
+  "jobId": "f16b0bed-e42a-11f1-bb46-22f5290c9c2d",
+  "zkVerifyTx": "0x5229aac80f2b710627cc6ef19c793cbb96d83e8eddcbb948b69ab3827baf3c70",
+  "zkVerifyBlock": "0xb63af89bef9719e17e03d892d267d7fecb3d1a47261cbf4c190b97d9859f8204",
+  "aggregationId": "66908",
+  "domainId": "2",
+  "kurierLeaf": "0xacfacb35509c21dd0f07ea76525f3590b4b414b4d6b05b9ac0966b78fdc99311",
+  "contractLeaf": "0xacfacb35509c21dd0f07ea76525f3590b4b414b4d6b05b9ac0966b78fdc99311",
+  "leafParity": true,
+  "verifyProofAggregation": true,
+  "publicSignals": [
+    "4658648487325879829716298872521433465467609107325708581141315178001650777115",
+    "900100842",
+    "133222542918231950854852868356280131372631818591",
+    "150000",
+    "1795187242",
+    "266511307968365441182060854971968092555374066097252287342487219621187871078"
+  ]
+}
