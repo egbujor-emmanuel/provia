@@ -30,9 +30,15 @@ export interface Receipt {
 
 const json = (v: unknown) => JSON.stringify(v, (_k, x) => (typeof x === 'bigint' ? x.toString() : x), 2);
 
+/** Somewhere durable to copy finished receipts (the host disk is wiped on restart). */
+export interface ReceiptMirror {
+  saveFinal(r: Receipt): Promise<void>;
+}
+
 export class ReceiptStore {
   readonly #dir: string;
   readonly #cache = new Map<string, Receipt>();
+  #mirror: ReceiptMirror | null = null;
 
   constructor(dir: string) {
     this.#dir = dir;
@@ -56,6 +62,21 @@ export class ReceiptStore {
     return r;
   }
 
+  /** Adds receipts restored from durable storage (local copies win if both exist). */
+  restore(receipts: readonly Receipt[]): number {
+    let added = 0;
+    for (const r of receipts) {
+      if (this.#cache.has(r.id)) continue;
+      this.#cache.set(r.id, r);
+      added++;
+    }
+    return added;
+  }
+
+  setMirror(mirror: ReceiptMirror): void {
+    this.#mirror = mirror;
+  }
+
   get(id: string): Receipt | undefined {
     return this.#cache.get(id);
   }
@@ -69,5 +90,6 @@ export class ReceiptStore {
     const file = join(this.#dir, `${r.id}.json`);
     writeFileSync(`${file}.tmp`, json(r));
     renameSync(`${file}.tmp`, file);
+    if (r.outcome !== 'pending') void this.#mirror?.saveFinal(r);
   }
 }

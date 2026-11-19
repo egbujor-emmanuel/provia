@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@hono/node-server": "2.1.9",
+    "@huggingface/hub": "^2.17.11",
     "@reclaimprotocol/client": "^0.1.47",
     "@reclaimprotocol/zk-fetch": "^2.1.0",
     "circomlibjs": "0.1.7",

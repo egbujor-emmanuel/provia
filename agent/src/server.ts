@@ -14,11 +14,26 @@ import { runClaim } from './pipeline.ts';
 import { SCENARIOS, isScenario, startScenario, demoBuyer, DEMO_PRICE_KOBO, DEMO_TOKEN_UNITS, type DemoContext } from './demo.ts';
 import { REFUSALS } from './refusals.ts';
 import { RateLimiter } from './rate-limit.ts';
+import { HfReceiptMirror } from './hf-store.ts';
 
 const env = process.env;
 const here = dirname(fileURLToPath(import.meta.url));
 const store = new ReceiptStore(env.RECEIPTS_DIR ?? join(here, '..', 'data', 'receipts'));
 const chain = new Chain(env.DEPLOYER_PRIVATE_KEY);
+
+// Durable receipts: restore finished receipts from the Hugging Face dataset, then mirror new ones.
+if (env.HF_TOKEN && env.HF_RECEIPTS_REPO) {
+  const mirror = new HfReceiptMirror(env.HF_RECEIPTS_REPO, env.HF_TOKEN);
+  try {
+    const restored = store.restore(await mirror.loadAll());
+    process.stdout.write(`restored ${restored} receipts from ${mirror.repoName}
+`);
+  } catch (e) {
+    process.stderr.write(`could not restore receipts: ${(e as Error).message}
+`);
+  }
+  store.setMirror(mirror);
+}
 
 const ctx: DemoContext | null =
   env.DEPLOYER_PRIVATE_KEY && env.KURIER_API_KEY_TESTNET
@@ -130,11 +145,11 @@ app.get('/api/receipts/:id', (c) => {
 const port = Number(env.PORT ?? 8787);
 serve({ fetch: app.fetch, port }, (info) => process.stdout.write(`provia agent listening on :${info.port}\n`));
 
-// Render's free plan sleeps a service after 15 minutes without inbound requests, and a cold start
-// would miss Agent Games' 60 s deadline. A request to our own public URL goes through Render's
+// Free hosts sleep idle services (Hugging Face after 48 h, Render after 15 min), and a cold start
+// would miss Agent Games' 60 s deadline. A request to our own public URL goes through the host's
 // router, so it counts as inbound traffic and keeps the agent awake.
 const KEEP_AWAKE_MS = 10 * 60_000;
-const publicUrl = env.RENDER_EXTERNAL_URL ?? env.PUBLIC_URL;
+const publicUrl = env.PUBLIC_URL ?? env.RENDER_EXTERNAL_URL ?? (env.SPACE_HOST ? `https://${env.SPACE_HOST}` : undefined);
 if (publicUrl) {
   setInterval(() => {
     fetch(`${publicUrl}/health`, { signal: AbortSignal.timeout(20_000) }).catch((e: unknown) => {
