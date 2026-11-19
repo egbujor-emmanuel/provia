@@ -10,7 +10,7 @@ import { SIGNATURE_HEADER } from './hmac.ts';
 import { Chain, DEPLOYMENT } from './chain.ts';
 import { KurierClient, AGGREGATION_DOMAIN, BASE_SEPOLIA_CHAIN_ID } from './kurier.ts';
 import { ReceiptStore } from './receipts.ts';
-import { runClaim } from './pipeline.ts';
+import { runClaim, serialised as serialisedWrite } from './pipeline.ts';
 import { SCENARIOS, isScenario, startScenario, demoBuyer, DEMO_PRICE_KOBO, DEMO_TOKEN_UNITS, type DemoContext } from './demo.ts';
 import { REFUSALS } from './refusals.ts';
 import { RateLimiter } from './rate-limit.ts';
@@ -160,6 +160,29 @@ app.get('/api/receipts/:id', (c) => {
   const r = store.get(c.req.param('id'));
   return r ? c.json(r) : c.json({ error: 'not found' }, 404);
 });
+
+
+// Refused demo trades keep their test USDC locked until the deadline; sweep them back every
+// 30 minutes so the demo wallet stays funded for judges over weeks.
+const REFUND_SWEEP_MS = 30 * 60_000;
+async function refundSweep(): Promise<void> {
+  if (!ctx) return;
+  const now = await chain.latestTimestamp();
+  for (const r of store.list(500)) {
+    if (r.outcome === 'released' || r.outcome === 'pending') continue;
+    try {
+      const t = await chain.getTrade(BigInt(r.tradeId));
+      if (t.state !== 'Locked' || now <= t.deadline || t.seller.toLowerCase() !== chain.signerAddress?.toLowerCase()) continue;
+      const tx = await serialisedWrite(() => chain.refund(t.tradeId));
+      process.stdout.write(`refunded expired trade ${r.tradeId}: ${tx.url}
+`);
+    } catch (e) {
+      process.stderr.write(`refund sweep skipped ${r.tradeId}: ${(e as Error).message.slice(0, 120)}
+`);
+    }
+  }
+}
+setInterval(() => void refundSweep(), REFUND_SWEEP_MS).unref();
 
 const port = Number(env.PORT ?? 8787);
 serve({ fetch: app.fetch, port }, (info) => process.stdout.write(`provia agent listening on :${info.port}\n`));

@@ -1,15 +1,14 @@
 // Returns test USDC from demo trades that were refused (or errored) once their deadline passes.
 // Run from repo root: node --env-file=.env agent/scripts/refund-expired.ts
-import { join } from 'node:path';
 import { Chain } from '../src/chain.ts';
-import { ReceiptStore } from '../src/receipts.ts';
 
+const AGENT = process.env.AGENT_URL ?? 'https://provia-ch7d.onrender.com';
 const chain = new Chain(process.env.DEPLOYER_PRIVATE_KEY);
-const store = new ReceiptStore(process.env.RECEIPTS_DIR ?? join('agent', 'data', 'receipts'));
+const receipts = (await (await fetch(`${AGENT}/api/receipts`)).json()) as { tradeId: string; outcome: string }[];
 const now = await chain.latestTimestamp();
 let refunded = 0;
 
-for (const r of store.list(1_000)) {
+for (const r of receipts) {
   if (r.outcome === 'released' || r.outcome === 'pending') continue;
   const trade = await chain.getTrade(BigInt(r.tradeId));
   if (trade.state !== 'Locked' || trade.seller.toLowerCase() !== chain.signerAddress?.toLowerCase()) continue;
