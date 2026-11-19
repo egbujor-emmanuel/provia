@@ -1,0 +1,80 @@
+{
+  "generatedAt": "2026-11-19T21:10:57.332Z",
+  "howToVerify": "npm run evidence:verify (no keys needed)",
+  "network": {
+    "chain": "Base Sepolia",
+    "chainId": 84532,
+    "rpc": "https://sepolia.base.org"
+  },
+  "contract": {
+    "escrow": "0x2786C763748BED21787916D8EC766F1Cde929a26",
+    "deployTx": "0xf28dd95f3f377e3591149d470cc21625d6f0329a24ff61e3496638d1e7c78d5d",
+    "zkVerifyProxy": "0x0807C544D38aE7729f8798388d89Be6502A1e8A8",
+    "vkHash": "0x23abe0175caa02a03514d25fb4812e6ef5f2cee9a9f03800cafae54735446e14"
+  },
+  "milestones": [
+    {
+      "claim": "Escrow rebuilds the statement leaf exactly as zkVerify aggregates it; verifyProofAggregation returned true",
+      "file": "evidence/g2-leaf-parity.json"
+    },
+    {
+      "claim": "zkVerify's TEE pallet verified a real Intel TDX quote from a NEAR AI enclave (integration evidence)",
+      "file": "evidence/brain-attestation.json"
+    },
+    {
+      "claim": "First end-to-end live release by the deployed agent",
+      "file": "evidence/first-live-release.json"
+    }
+  ],
+  "runs": [
+    {
+      "claim": "An honest payment was proven and the escrow released",
+      "scenario": "honest",
+      "receipt": "https://provia-ch7d.onrender.com/api/receipts/3cf7a978-730b-42a1-a54c-9ec77c743eda",
+      "tradeId": "1795120115472395",
+      "outcome": "released",
+      "lockTx": "0xe37391cec2221d32228f1996a9243fd386c27e69ad375f259b36dec6be5f13ff",
+      "zkVerifyMainnetTx": "0x1e11a7dc810b63166a0beaa0f7958baa3a1375e972da87bc752f3510d8277905",
+      "zkVerifyTestnetTx": "0x3214d4232db24fd03d8b95630572fd84f3536f15234cd60a24f7fdfd611e3e2a",
+      "aggregationId": "66999",
+      "releaseTx": "0x9b083be9e004417e3acd9aafdf9a90821fa94a3bc8c3a31aa595b6d5aef61746",
+      "expect": "released"
+    },
+    {
+      "claim": "Attack \"forged-screenshot\" was refused with NO_PAYMENT_AT_PSP; no release",
+      "scenario": "forged-screenshot",
+      "receipt": "https://provia-ch7d.onrender.com/api/receipts/646b988f-74c5-40b4-a41b-5292f34eee85",
+      "tradeId": "1795117610301470",
+      "outcome": "NO_PAYMENT_AT_PSP",
+      "lockTx": "0xc2a533745e09296456f00fdb314cb294cface6652a75794c671632301f38cb9d",
+      "expect": "NO_PAYMENT_AT_PSP"
+    },
+    {
+      "claim": "Attack \"short-payment\" was refused with AMOUNT_SHORT; no release",
+      "scenario": "short-payment",
+      "receipt": "https://provia-ch7d.onrender.com/api/receipts/e2734178-a79e-4b8a-a377-35e421e71132",
+      "tradeId": "1795122524640622",
+      "outcome": "AMOUNT_SHORT",
+      "lockTx": "0x73d79e886da508a60e91dd334abc2f5f98274983262148ba7ed30e67259ca212",
+      "expect": "AMOUNT_SHORT"
+    },
+    {
+      "claim": "Attack \"wrong-trade\" was refused with TRADE_MISMATCH; no release",
+      "scenario": "wrong-trade",
+      "receipt": "https://provia-ch7d.onrender.com/api/receipts/ebfb2e28-ba36-4729-b84e-35f5c3c4b65c",
+      "tradeId": "1795122558785195",
+      "outcome": "TRADE_MISMATCH",
+      "lockTx": "0x9820a95fda81a4ae2d99204686049e128b8cc88dfe4e52326c892605a7314396",
+      "expect": "TRADE_MISMATCH"
+    },
+    {
+      "claim": "Attack \"replay\" was refused with REF_REUSED; no release",
+      "scenario": "replay",
+      "receipt": "https://provia-ch7d.onrender.com/api/receipts/53fbed2f-213b-4dd6-9969-a2858a05b193",
+      "tradeId": "1795122578503786",
+      "outcome": "REF_REUSED",
+      "lockTx": "0x6550a0140b54c0de298a31d3a98041de8aa848cb80e8cad06c2e69d410819e73",
+      "expect": "REF_REUSED"
+    }
+  ]
+}

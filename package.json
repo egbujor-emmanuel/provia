@@ -16,6 +16,8 @@
     "contracts:test": "npm test --workspace @provia/contracts",
     "agent:test": "npm test --workspace @provia/agent",
     "verify": "npm run agent:typecheck && npm run circuits:test && npm run contracts:test && npm run agent:test",
-    "agent:typecheck": "npm run typecheck --workspace @provia/agent"
+    "agent:typecheck": "npm run typecheck --workspace @provia/agent",
+    "evidence:build": "node agent/scripts/evidence.ts build",
+    "evidence:verify": "node agent/scripts/evidence.ts verify"
   }
 }

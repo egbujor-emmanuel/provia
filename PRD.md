@@ -9,12 +9,12 @@
 ## §2 Problem
 In P2P crypto trades the seller releases crypto after *seeing* a payment: a bank alert, a Pix receipt, a UPI screenshot. Forged proofs are the most common P2P scam. Exchange escrow still relies on a human clicking "release" based on what they see, and that is exactly the step forgery attacks. Industry advice: *"never release escrow until the funds have fully cleared"* (Bybit, SoFi). Nobody can tell a seller, provably, that they have.
 
-First live rail: naira via Paystack. It has an open verify API and is unserved by ZKP2P, which covers US/EU rails only. The design is rail-agnostic.
+The design is rail-agnostic: any processor with a verify API works. The demo rail is Paystack in test mode, because its verify API is open and returns the fields the policy needs.
 
 ## §3 Flow (the demo)
 `LOCK → PAY → PROVE → VERIFY ON zkVERIFY → RELEASE` and the attack: `FAKE PROOF → REFUSED`.
 1. **Lock.** The seller creates a trade (price in kobo, amount of test USDC, buyer's payout address, deadline) and deposits USDC into `ProviaEscrow` on Base Sepolia.
-2. **Pay.** The buyer pays the naira price via Paystack checkout (test mode). The trade id is in the Paystack metadata.
+2. **Pay.** The buyer pays the fiat price through the processor (Paystack test mode in the demo). The trade id is in the Paystack metadata.
 3. **Claim.** The buyer tells the agent "I've paid" in their own words. A deterministic parser extracts the Paystack reference (no paid model; decided 2026-11-19, zero budget). It only reads the claim; it never decides.
 4. **Prove payment (zkTLS).** The agent runs Reclaim zkFetch on `GET https://api.paystack.co/transaction/verify/:reference`. The secret key is hidden; status, amount, currency, paid_at, reference and metadata.trade_id are revealed.
 5. **Policy proof (Groth16).** The agent proves `release_policy.circom` (§6) and submits it to Kurier: **testnet with chainId 84532** (aggregated to Base Sepolia) **and mainnet** (zkVerify mainnet finality).

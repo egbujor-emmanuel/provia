@@ -123,6 +123,17 @@ export class Chain {
     return this.#signer;
   }
 
+  /**
+   * EIP-1559 fees from the network's real price. ethers v5 otherwise adds a 1.5 gwei tip and
+   * reserves maxFee × gas up front, which on Base Sepolia (~0.006 gwei) is ~250× the real cost.
+   */
+  async #fees(): Promise<{ maxFeePerGas: ethers.BigNumber; maxPriorityFeePerGas: ethers.BigNumber }> {
+    const block = await this.provider.getBlock('latest');
+    const base = block.baseFeePerGas ?? (await this.provider.getGasPrice());
+    const tip = ethers.utils.parseUnits('0.002', 'gwei');
+    return { maxFeePerGas: base.mul(3).add(tip), maxPriorityFeePerGas: tip };
+  }
+
   async #send(tx: Promise<ethers.ContractTransaction>): Promise<TxReceipt> {
     const sent = await tx;
     const mined = await sent.wait(1);
@@ -134,7 +145,7 @@ export class Chain {
     const signer = this.#requireSigner();
     const allowance = BigInt((await this.usdc.allowance(signer.address, DEPLOYMENT.address)).toString());
     if (allowance < args.tokenAmount) {
-      await this.#send(this.usdc.approve(DEPLOYMENT.address, ethers.constants.MaxUint256));
+      await this.#send(this.usdc.approve(DEPLOYMENT.address, ethers.constants.MaxUint256, await this.#fees()));
     }
     const params = [args.tradeId.toString(), args.recipient, args.tokenAmount.toString(), args.priceKobo.toString(), args.deadline.toString()] as const;
     try {
@@ -142,7 +153,7 @@ export class Chain {
     } catch (e) {
       throw new Error(`lock would revert: ${revertReason(e)}`);
     }
-    return this.#send(this.escrow.lock(...params));
+    return this.#send(this.escrow.lock(...params, await this.#fees()));
   }
 
   /** Seller reclaims an unreleased trade after its deadline. Simulated before sending. */
@@ -153,7 +164,7 @@ export class Chain {
     } catch (e) {
       throw new Error(`refund would revert: ${revertReason(e)}`);
     }
-    return this.#send(this.escrow.refund(tradeId.toString()));
+    return this.#send(this.escrow.refund(tradeId.toString(), await this.#fees()));
   }
 
   /** Anyone may release; funds can only go to the recorded recipient. Simulated before sending. */
@@ -172,6 +183,6 @@ export class Chain {
     } catch (e) {
       throw new Error(`release would revert: ${revertReason(e)}`);
     }
-    return this.#send(this.escrow.release(...params));
+    return this.#send(this.escrow.release(...params, await this.#fees()));
   }
 }

@@ -1,0 +1,45 @@
+X THREAD (Creator Track + Wildcard public share). Required: #AgentGames in every post, tag @ZKVProtocol.
+Attach: post 1 = 20 s screen recording of the forged payment being refused; post 5 = screenshot of the released receipt.
+
+1/
+In a P2P crypto trade, the seller releases coins after looking at a payment alert. Alerts are easy to fake.
+
+I built Provia: an escrow agent that releases only when the payment is proven, and the contract checks the proof on @ZKVProtocol.
+
+Try to cheat it: https://provia-ten.vercel.app
+#AgentGames
+
+2/
+How a release works:
+• seller locks USDC in an escrow on Base Sepolia
+• buyer pays and tells the agent "I've paid, ref X"
+• zkTLS proves what the payment processor's own API returned
+• a Groth16 circuit proves the trade rules hold
+#AgentGames
+
+3/
+The proof goes to zkVerify mainnet for finality, and to zkVerify testnet where it is aggregated to Base Sepolia.
+
+The escrow rebuilds the leaf from its own trade data and calls verifyProofAggregation. No attestation, no release. The agent can't talk its way past it.
+#AgentGames
+
+4/
+Four attacks, all refused live with typed codes:
+• forged screenshot → NO_PAYMENT_AT_PSP
+• underpayment → AMOUNT_SHORT
+• someone else's payment → TRADE_MISMATCH
+• reused payment → REF_REUSED
+Every refusal is a public receipt.
+#AgentGames
+
+5/
+The honest path, end to end in about 90 seconds on the deployed agent: lock → zkTLS → Groth16 → zkVerify → release.
+
+Check it yourself, no keys: npm run evidence:verify (19 on-chain checks).
+
+Code: https://github.com/egbujor-emmanuel/provia
+@ZKVProtocol #AgentGames
+
+---
+SHORT VERSION (single post):
+Provia: an escrow agent that releases crypto only when the payment is proven. zkTLS proves the processor's record, Groth16 proves the trade rules, and the contract checks the attestation on @ZKVProtocol before paying. Four live attacks, four refusals. https://provia-ten.vercel.app #AgentGames
