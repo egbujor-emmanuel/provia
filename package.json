@@ -1,0 +1,13 @@
+{
+  "name": "provia",
+  "private": true,
+  "type": "module",
+  "workspaces": ["circuits", "contracts"],
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "circuits:build": "npm run build --workspace @provia/circuits",
+    "circuits:test": "npm test --workspace @provia/circuits",
+    "contracts:test": "npm test --workspace @provia/contracts",
+    "verify": "npm run circuits:test && npm run contracts:test"
+  }
+}
