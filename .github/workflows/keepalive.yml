@@ -1,0 +1,27 @@
+name: Keep agent awake and watch it
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Wake and check the live agent
+        env:
+          AGENT_URL: ${{ vars.AGENT_URL }}
+        run: |
+          if [ -z "$AGENT_URL" ]; then echo "AGENT_URL repo variable not set yet; skipping"; exit 0; fi
+          # A sleeping free instance takes about a minute to wake, so allow retries.
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -s -o /tmp/health.json -w '%{http_code}' --max-time 60 "$AGENT_URL/health" || true)
+            if [ "$code" = "200" ]; then echo "healthy: $(cat /tmp/health.json)"; break; fi
+            echo "attempt $i: HTTP $code"; sleep 20
+          done
+          [ "$code" = "200" ] || { echo "::error::Provia agent is down at $AGENT_URL"; exit 1; }
+          curl -s --max-time 30 "$AGENT_URL/api/config" | jq -e '.ready' > /tmp/ready.json
+          cat /tmp/ready.json
+          jq -e 'all(.[]; . == true)' /tmp/ready.json > /dev/null || echo "::warning::some integrations are not configured"
