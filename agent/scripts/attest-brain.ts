@@ -30,7 +30,7 @@ writeFileSync(
   'evidence/brain-attestation.json',
   JSON.stringify(
     {
-      claim: "The agent's model runs in a genuine, non-debug Intel TDX enclave whose key is bound to a fresh nonce, verified on zkVerify's TEE pallet",
+      claim: "A NEAR AI private-model enclave is a genuine, non-debug Intel TDX trust domain whose signing key is bound to a fresh nonce; zkVerify's TEE pallet verified its quote on-chain",
       attestedAt: new Date().toISOString(),
       model: brain.model,
       enclaveSigningAddress: brain.signingAddress,

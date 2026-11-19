@@ -1,0 +1,25 @@
+{
+  "claim": "A NEAR AI private-model enclave is a genuine, non-debug Intel TDX trust domain whose signing key is bound to a fresh nonce; zkVerify's TEE pallet verified its quote on-chain",
+  "attestedAt": "2026-11-19T15:37:16.498Z",
+  "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+  "enclaveSigningAddress": "0xfe0071895500a9755c18044948ab4f4e1a7f337e",
+  "nonce": "c4807a794310b444b9b9e5af2454da09ba197fbf383e93ca334fddbc3172fb47",
+  "mrTd": "e107136c99ae1745ab299e9462927890b7b1c984d5ef53fa5830584ad4246db663fdf96563b913e9e2471906b26f7aae",
+  "quoteSha256": "44bf2e5ab5598cee54576b3530e23bf112c02fb3c0b825d848377238f16b0e33",
+  "quoteBytes": 5006,
+  "gpuEvidencePresent": true,
+  "fmspc": "90C06F000000",
+  "tcbValidity": {
+    "issueDate": "2026-11-19T14:31:49Z",
+    "nextUpdate": "2026-12-19T14:31:49Z"
+  },
+  "zkVerify": {
+    "network": "Volta",
+    "pallet": "settlementTeePallet",
+    "txHash": "0x1640c2e53ee50925a1339bf0c9b61a8d176dca4a29ce4730f7e9e4e11d5b24ce",
+    "blockHash": "0xe993e0e877581937f46dfe1a7f1d7e5780d1f005d5a064c6069820388d9bea66",
+    "statement": "0x164e7360088aa65d69fe50d4fcb21f020744f9bdaeae69ff5919355d0acbf55a",
+    "status": "finalized"
+  },
+  "explorer": "https://zkverify-testnet.subscan.io/extrinsic/0x1640c2e53ee50925a1339bf0c9b61a8d176dca4a29ce4730f7e9e4e11d5b24ce"
+}
