@@ -8,6 +8,7 @@
     "circuits:build": "npm run build --workspace @provia/circuits",
     "circuits:test": "npm test --workspace @provia/circuits",
     "contracts:test": "npm test --workspace @provia/contracts",
-    "verify": "npm run circuits:test && npm run contracts:test"
+    "agent:test": "npm test --workspace @provia/agent",
+    "verify": "npm run circuits:test && npm run contracts:test && npm run agent:test"
   }
 }

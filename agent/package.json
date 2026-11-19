@@ -2,6 +2,19 @@
   "name": "@provia/agent",
   "private": true,
   "type": "module",
-  "scripts": { "vk-hash": "node scripts/vk-hash.mjs" },
-  "dependencies": { "zkverifyjs": "3.4.0" }
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "dev": "node --env-file=../.env src/server.ts",
+    "start": "node src/server.ts",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "vk-hash": "node scripts/vk-hash.mjs"
+  },
+  "dependencies": {
+    "@hono/node-server": "2.1.9",
+    "circomlibjs": "0.1.7",
+    "hono": "4.13.19",
+    "snarkjs": "0.7.5",
+    "zkverifyjs": "3.4.0",
+    "zod": "4.6.7"
+  }
 }
