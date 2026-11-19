@@ -1,8 +1,11 @@
 // zkTLS payment proofs: Reclaim zkFetch (Builder mode) over Paystack's verify endpoint.
-// The Paystack key travels only in secret headers. Reclaim's attestor drops large proofs, so the
-// agent proves one field per zkFetch call (each a small proof), all of the same signed request URL
-// and bound to the same trade context. Every proof is checked with Reclaim's official verifier
-// against Reclaim Builder's published attestor set before any field is trusted.
+// The Paystack key travels only in secret headers. Two modes, same verification:
+//  - tee   (Linux/macOS, used by the hosted agent): one proof of all fields through Reclaim's TEE
+//          attestors, about 8 s.
+//  - split (elsewhere): one small ZK proof per field, because Reclaim's non-TEE attestor drops
+//          large proofs; all proofs are of the same signed request URL and trade context.
+// Every proof is checked with Reclaim's official verifier against Reclaim Builder's published
+// attestor set before any field is trusted.
 // The reference itself is not revealed from the body: it is inside the signed request URL.
 import { ReclaimClient } from '@reclaimprotocol/zk-fetch';
 import { hashProofClaimParams, verifyRequestProof, type ReclaimRequestProof } from '@reclaimprotocol/client';
@@ -52,8 +55,19 @@ export interface ZkTlsProof {
 }
 
 export interface FieldProof {
-  readonly field: FieldName;
+  /** The fields this proof reveals: all five in tee mode, one in split mode. */
+  readonly fields: readonly FieldName[];
   readonly proof: ZkTlsProof;
+}
+
+export type ZkTlsMode = 'tee' | 'split';
+
+/** Reclaim ships its TEE client library for these platforms only. */
+export function defaultMode(): ZkTlsMode {
+  const forced = process.env.ZKTLS_MODE;
+  if (forced === 'tee' || forced === 'split') return forced;
+  const supported = (process.platform === 'linux' || process.platform === 'darwin') && (process.arch === 'x64' || process.arch === 'arm64');
+  return supported ? 'tee' : 'split';
 }
 
 export class ZkTlsError extends Error {
@@ -63,21 +77,27 @@ export class ZkTlsError extends Error {
   }
 }
 
-function fieldParams(reference: string, f: RevealedField) {
+function fieldsByName(names: readonly FieldName[]): RevealedField[] {
+  return names.map((n) => {
+    const f = REVEALED_FIELDS.find((x) => x.name === n);
+    if (!f) throw new ZkTlsError(`unknown field ${n}`);
+    return f;
+  });
+}
+
+function requestParams(reference: string, fields: readonly RevealedField[]) {
   return {
     url: verifyUrl(reference),
     method: 'GET',
     body: '',
-    responseMatches: [{ type: 'regex', value: f.regex }],
-    responseRedactions: [{ jsonPath: f.jsonPath, regex: f.regex }],
+    responseMatches: fields.map((f) => ({ type: 'regex' as const, value: f.regex })),
+    responseRedactions: fields.map((f) => ({ jsonPath: f.jsonPath, regex: f.regex })),
   };
 }
 
-/** The exact request hash a proof of `field` for `reference` must carry. */
-export function expectedFieldHashes(reference: string, field: FieldName): string[] {
-  const f = REVEALED_FIELDS.find((x) => x.name === field);
-  if (!f) throw new ZkTlsError(`unknown field ${field}`);
-  return hashProofClaimParams(fieldParams(reference, f));
+/** The exact request hash a proof revealing `fields` for `reference` must carry. */
+export function expectedFieldHashes(reference: string, fields: FieldName | readonly FieldName[]): string[] {
+  return hashProofClaimParams(requestParams(reference, fieldsByName(typeof fields === 'string' ? [fields] : fields)));
 }
 
 async function mapLimit<T, R>(items: readonly T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
@@ -99,21 +119,24 @@ export async function provePaystackTransaction(args: {
   readonly contextAddress: string;
   readonly orgToken: string | undefined;
   readonly paystackKey: string | undefined;
-  readonly onField?: (field: FieldName, ms: number) => void;
+  readonly mode?: ZkTlsMode;
+  readonly onField?: (field: string, ms: number) => void;
 }): Promise<FieldProof[]> {
   if (!args.orgToken?.startsWith('rorg_')) throw new ZkTlsError('RECLAIM_ORG_TOKEN (rorg_…) is not set');
   if (!args.paystackKey) throw new ZkTlsError('PAYSTACK_SECRET_KEY is not set');
+  const mode = args.mode ?? defaultMode();
   const client = new ReclaimClient({ orgToken: args.orgToken, retries: 3, logs: process.env.RECLAIM_LOGS === '1' });
-  return mapLimit(REVEALED_FIELDS, PROOF_CONCURRENCY, async (f) => {
+  const groups: RevealedField[][] = mode === 'tee' ? [[...REVEALED_FIELDS]] : REVEALED_FIELDS.map((f) => [f]);
+  return mapLimit(groups, PROOF_CONCURRENCY, async (fields) => {
     const t0 = Date.now();
-    const p = fieldParams(args.reference, f);
+    const p = requestParams(args.reference, fields);
     const proof = await client.zkFetch(
       p.url,
-      { method: 'GET', useTee: false, context: { contextAddress: args.contextAddress, contextMessage: contextMessage(args.tradeId) } },
-      { headers: { Authorization: `Bearer ${args.paystackKey}` }, responseMatches: [{ type: 'regex', value: f.regex }], responseRedactions: p.responseRedactions },
+      { method: 'GET', useTee: mode === 'tee', context: { contextAddress: args.contextAddress, contextMessage: contextMessage(args.tradeId) } },
+      { headers: { Authorization: `Bearer ${args.paystackKey}` }, responseMatches: p.responseMatches, responseRedactions: p.responseRedactions },
     );
-    args.onField?.(f.name, Date.now() - t0);
-    return { field: f.name, proof: proof as unknown as ZkTlsProof };
+    args.onField?.(fields.map((f) => f.name).join('+'), Date.now() - t0);
+    return { fields: fields.map((f) => f.name), proof: proof as unknown as ZkTlsProof };
   });
 }
 
@@ -131,26 +154,29 @@ export async function claimFromProofs(
 ): Promise<PaymentClaim> {
   const values: Partial<Record<FieldName, string>> = {};
   const times: number[] = [];
-  for (const f of REVEALED_FIELDS) {
-    const fp = proofs.find((x) => x.field === f.name);
-    if (!fp) throw new ZkTlsError(`no proof for field ${f.name}`);
-    const { proof } = fp;
+  for (const { fields, proof } of proofs) {
     if (proof.claimData.provider !== 'http') throw new ZkTlsError(`unexpected provider ${proof.claimData.provider}`);
     const outcome = await verifyRequestProof(proof as unknown as ReclaimRequestProof, {
-      hashes: expectedFieldHashes(expected.reference, f.name),
+      hashes: expectedFieldHashes(expected.reference, fields),
       expectedContext: { contextAddress: expected.contextAddress, contextMessage: contextMessage(expected.tradeId) },
       ...(opts.attestorAddresses ? { attestorAddresses: opts.attestorAddresses } : { attestorJwksUrl: RECLAIM_ATTESTOR_JWKS }),
       ...(opts.fetchImpl ? { fetchImpl: opts.fetchImpl } : {}),
     });
     if (!outcome.valid) {
       const reason = outcome.reason ?? 'unknown reason';
-      throw new ZkTlsError(/context/i.test(reason) ? `proof is bound to a different trade (${reason})` : `Reclaim verification of ${f.name} failed: ${reason}`);
+      throw new ZkTlsError(/context/i.test(reason) ? `proof is bound to a different trade (${reason})` : `Reclaim verification of ${fields.join('+')} failed: ${reason}`);
     }
     const context = JSON.parse(proof.claimData.context) as { extractedParameters?: Record<string, string> };
-    const value = context.extractedParameters?.[f.name];
-    if (typeof value !== 'string') throw new ZkTlsError(`revealed field ${f.name} missing`);
-    values[f.name] = value;
+    for (const name of fields) {
+      const value = context.extractedParameters?.[name];
+      if (typeof value !== 'string') throw new ZkTlsError(`revealed field ${name} missing`);
+      if (values[name] !== undefined && values[name] !== value) throw new ZkTlsError(`field ${name} differs between proofs`);
+      values[name] = value;
+    }
     times.push(proof.claimData.timestampS);
+  }
+  for (const f of REVEALED_FIELDS) {
+    if (values[f.name] === undefined) throw new ZkTlsError(`no proof for field ${f.name}`);
   }
   if (Math.max(...times) - Math.min(...times) > MAX_PROOF_SPREAD_S) throw new ZkTlsError('field proofs were not produced in one sitting');
 

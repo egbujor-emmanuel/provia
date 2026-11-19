@@ -114,7 +114,7 @@ export async function runClaim(deps: PipelineDeps, receipt: Receipt, message: st
           paystackKey: deps.paystackKey,
           onField: (field, ms) => {
             proved.push(`${field} ${Math.round(ms / 1000)}s`);
-            s.detail = `proved ${proved.length}/5 fields: ${proved.join(', ')}`;
+            s.detail = `proved: ${proved.join(", ")}`;
             store.save(receipt);
           },
         });

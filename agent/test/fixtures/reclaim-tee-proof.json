@@ -1,0 +1,28 @@
+{
+  "identifier": "0x7cf003ba70f9e9ceb8dafa2fa7147b333241eac585e99934872dfd4e33839ad1",
+  "claimData": {
+    "provider": "http",
+    "parameters": "{\"url\":\"https://api.paystack.co/transaction/verify/vgrzv1uk5extoun\",\"method\":\"GET\",\"responseMatches\":[{\"value\":\"\\\"status\\\":\\\"(?<status>[a-z_]+)\\\"\",\"type\":\"regex\"},{\"value\":\"\\\"amount\\\":(?<amount>[0-9]{1,18})\",\"type\":\"regex\"},{\"value\":\"\\\"currency\\\":\\\"(?<currency>[A-Z]{3})\\\"\",\"type\":\"regex\"},{\"value\":\"\\\"paid_at\\\":\\\"(?<paid_at>[0-9T:.Z-]{20,30})\\\"\",\"type\":\"regex\"},{\"value\":\"\\\"tradeId\\\":\\\"(?<tradeId>[0-9]{1,40})\\\"\",\"type\":\"regex\"}],\"responseRedactions\":[{\"regex\":\"\\\"status\\\":\\\"(?<status>[a-z_]+)\\\"\",\"jsonPath\":\"$.data.status\"},{\"regex\":\"\\\"amount\\\":(?<amount>[0-9]{1,18})\",\"jsonPath\":\"$.data.amount\"},{\"regex\":\"\\\"currency\\\":\\\"(?<currency>[A-Z]{3})\\\"\",\"jsonPath\":\"$.data.currency\"},{\"regex\":\"\\\"paid_at\\\":\\\"(?<paid_at>[0-9T:.Z-]{20,30})\\\"\",\"jsonPath\":\"$.data.paid_at\"},{\"regex\":\"\\\"tradeId\\\":\\\"(?<tradeId>[0-9]{1,40})\\\"\",\"jsonPath\":\"$.data.metadata.tradeId\"}]}",
+    "owner": "0x7a60b56e8bc3ddb709e3d3f11b416c6c051ad9a0",
+    "timestampS": 1795107777,
+    "context": "{\"contextAddress\":\"0x1755E7CA81a3a907bB15637fD40Eb874ADb9815f\",\"contextMessage\":\"provia:trade:1\",\"extractedParameters\":{\"amount\":\"150000\",\"currency\":\"NGN\",\"paid_at\":\"2026-11-19T15:07:35.000Z\",\"status\":\"success\",\"tradeId\":\"1\"},\"pcr0_k\":\"snp-app:d0f9a0f65cb6cce0f3f1add80a4efec808eec0f5de3f0932da3052d4c0eaca70\",\"pcr0_t\":\"snp-app:a8373dd6a0e3a9b6b6adbe0e09f57d77143d06896649d6826fa051f599547a3c\",\"providerHash\":\"0x9247da37d8c6bb79e254370bc566f10a1cd7bf4f23af1eb6dffa4a9ae25aabb5\",\"tee_session_id\":\"8d273561-001b-486e-ac1f-58d96ce714f3\"}",
+    "identifier": "0x7cf003ba70f9e9ceb8dafa2fa7147b333241eac585e99934872dfd4e33839ad1",
+    "epoch": 1
+  },
+  "signatures": [
+    "0x2319748591b50d76349f80924346253d14633dfbce0c23ef186952ac0e486f2b7ca30106379424a0ff7f3658f41ecdd4859350c79a6ffbb614a6b0aac82f5f061c"
+  ],
+  "witnesses": [
+    {
+      "id": "0x244897572368eadf65bfbc5aec98d8e5443a9072",
+      "url": "wss://attestor.reclaimprotocol.org:444/ws"
+    }
+  ],
+  "extractedParameterValues": {
+    "amount": "150000",
+    "currency": "NGN",
+    "paid_at": "2026-11-19T15:07:35.000Z",
+    "status": "success",
+    "tradeId": "1"
+  }
+}
