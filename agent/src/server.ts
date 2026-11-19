@@ -130,4 +130,17 @@ app.get('/api/receipts/:id', (c) => {
 const port = Number(env.PORT ?? 8787);
 serve({ fetch: app.fetch, port }, (info) => process.stdout.write(`provia agent listening on :${info.port}\n`));
 
+// Render's free plan sleeps a service after 15 minutes without inbound requests, and a cold start
+// would miss Agent Games' 60 s deadline. A request to our own public URL goes through Render's
+// router, so it counts as inbound traffic and keeps the agent awake.
+const KEEP_AWAKE_MS = 10 * 60_000;
+const publicUrl = env.RENDER_EXTERNAL_URL ?? env.PUBLIC_URL;
+if (publicUrl) {
+  setInterval(() => {
+    fetch(`${publicUrl}/health`, { signal: AbortSignal.timeout(20_000) }).catch((e: unknown) => {
+      process.stderr.write(`keep-awake ping failed: ${(e as Error).message}\n`);
+    });
+  }, KEEP_AWAKE_MS).unref();
+}
+
 export { app };
