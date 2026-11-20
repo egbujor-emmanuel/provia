@@ -1,6 +1,6 @@
 // Builds the Provia walkthrough from lines.json: problem → why → how it works → how to use (5 steps) → end.
 // Each scene is timed to its voice clip. Run: node build.mjs, then npx hyperframes lint.
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 
 const LEAD = 0.45;
@@ -11,6 +11,8 @@ const VOICE = 'assets/voice2';
 
 const dur = (f) => Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', f]).toString().trim());
 const lines = JSON.parse(readFileSync('lines.json', 'utf8'));
+const WALK = existsSync('assets/walk.json') ? JSON.parse(readFileSync('assets/walk.json', 'utf8')) : null;
+const walkSeg = (id) => WALK?.segs.find((x) => x.id === id);
 const r2 = (n) => Math.round(n * 100) / 100;
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
 
@@ -150,7 +152,8 @@ function shotScene(id, l, length, plan) {
 }
 
 const STYLE = `
-    #root { position: absolute; inset: 0; background: #0a0b0d; overflow: hidden; font-family: Inter, sans-serif; color: #fff; }
+    #root { position: absolute; inset: 0; overflow: hidden; font-family: Inter, sans-serif; color: #fff; }
+    #root .ff { position: absolute; right: 60px; top: 50px; background: rgba(10,11,13,.92); color: #f2b33d; font: 700 30px/1 'Space Mono', monospace; padding: 16px 22px; border-radius: 12px; border: 2px solid #f2b33d; z-index: 7; }
     #root .cam { position: absolute; inset: 0; overflow: hidden; }
     #root .cam img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     #root .cursor { position: absolute; left: 0; top: 0; width: 56px; height: 56px; z-index: 5; }
@@ -187,18 +190,30 @@ const STYLE = `
     #root .banner { position: absolute; left: 0; right: 0; top: 820px; text-align: center; font-size: 84px; font-weight: 900; color: #ff7a5c; }
 `;
 
+function overlayScene(id, l, length, seg) {
+  const parts = [];
+  const js = [];
+  if (seg.speed >= 1.5) {
+    parts.push(`<div id="${id}-ff" class="clip ff" data-start="0.2" data-duration="${r2(length - 0.4)}">⏩ ${seg.speed}× · ${Math.round(seg.sourceSeconds)} s of live waiting, sped up</div>`);
+    js.push(`tl.fromTo("#${id}-ff", { opacity: 0 }, { opacity: 1, duration: 0.3 }, 0.2);`);
+  }
+  return { parts, js };
+}
+
 function sceneFile(l, length, plan) {
   const id = l.id;
-  const body = plan.kind ? designed(id, l, length, plan) : shotScene(id, l, length, plan);
+  const seg = walkSeg(id);
+  const body = seg ? overlayScene(id, l, length, seg) : plan.kind ? designed(id, l, length, plan) : shotScene(id, l, length, plan);
   const showCaption = !plan.kind;
   if (showCaption) {
     const c = caption(id, l.show, length);
     body.parts.push(c.html);
     body.js.push(c.js);
   }
+  const bg = seg ? '' : ' style="background:#0a0b0d"';
   return `<template>
   <style>${STYLE}</style>
-  <div id="root" data-composition-id="${id}" data-width="${W}" data-height="${H}">
+  <div id="root" data-composition-id="${id}" data-width="${W}" data-height="${H}"${bg}>
     ${body.parts.join('\n    ')}
   </div>
   <script>
@@ -215,21 +230,20 @@ let t = 0;
 const hosts = [];
 const audio = [];
 let clickN = 0;
+let walkStart = null;
 let prevShot = null;
 for (const l of lines) {
   const plan = PLAN[l.id];
   const v = dur(`${VOICE}/${l.id}.mp3`);
-  const length = r2(LEAD + v + TAIL + (plan.kind === 'end' ? 1.6 : 0));
+  const seg = walkSeg(l.id);
+  if (seg && walkStart === null) walkStart = t;
+  const length = seg ? seg.length : r2(LEAD + v + TAIL + (plan.kind === 'end' ? 1.6 : 0));
   writeFileSync(`compositions/${l.id}.html`, sceneFile(l, length, plan));
   hosts.push(`<div id="${l.id}" data-composition-id="${l.id}" data-composition-src="compositions/${l.id}.html" data-start="${r2(t)}" data-duration="${length}" data-track-index="1" data-track-kind="graphics" data-width="${W}" data-height="${H}"></div>`);
   audio.push(`<audio id="vo-${l.id}" src="${VOICE}/${l.id}.mp3" data-start="${r2(t + LEAD)}" data-duration="${r2(v)}" data-track-index="2" data-volume="1"></audio>`);
-  if (plan.click) audio.push(`<audio id="sfx-click-${l.id}" src="assets/sfx/${clickN++ % 2 ? 'click2' : 'click1'}.mp3" data-start="${r2(t + LEAD + plan.clickAt - 0.02)}" data-duration="0.28" data-track-index="3" data-volume="0.9"></audio>`);
+  if (seg) for (const [k, c] of seg.clicks.entries()) audio.push(`<audio id="sfx-click-${l.id}-${k}" src="assets/sfx/${clickN++ % 2 ? 'click2' : 'click1'}.mp3" data-start="${r2(walkStart + c - 0.02)}" data-duration="0.28" data-track-index="3" data-volume="0.9"></audio>`);
+  if (!seg && plan.click) audio.push(`<audio id="sfx-click-${l.id}" src="assets/sfx/${clickN++ % 2 ? 'click2' : 'click1'}.mp3" data-start="${r2(t + LEAD + plan.clickAt - 0.02)}" data-duration="0.28" data-track-index="3" data-volume="0.9"></audio>`);
   if (plan.pop) audio.push(`<audio id="sfx-pop-${l.id}" src="assets/sfx/pop1.mp3" data-start="${r2(t + LEAD + plan.pop - 0.06)}" data-duration="0.9" data-track-index="3" data-volume="0.55"></audio>`);
-  const visual = plan.shot ?? plan.kind;
-  if (t > 0 && visual !== prevShot && !(plan.kind === 'alert' && prevShot === 'alert') && !(plan.kind === 'diagram' && prevShot === 'diagram')) {
-    audio.push(`<audio id="sfx-swoosh-${l.id}" src="assets/sfx/swoosh.mp3" data-start="${r2(Math.max(0, t - 0.5))}" data-duration="1.6" data-track-index="4" data-volume="0.3"></audio>`);
-  }
-  prevShot = plan.next ?? visual;
   t += length;
 }
 const total = r2(t);
@@ -250,6 +264,7 @@ writeFileSync(
   </head>
   <body>
     <div id="main" data-composition-id="main" data-start="0" data-duration="${total}" data-width="${W}" data-height="${H}">
+      ${WALK && walkStart !== null ? `<video id="walk" class="clip" src="assets/walk.mp4" muted playsinline data-start="${r2(walkStart)}" data-duration="${WALK.total}" data-track-index="0" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"></video>` : ''}
       ${hosts.join('\n      ')}
       ${audio.join('\n      ')}
     </div>

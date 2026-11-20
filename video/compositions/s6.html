@@ -1,6 +1,7 @@
 <template>
   <style>
-    #root { position: absolute; inset: 0; background: #0a0b0d; overflow: hidden; font-family: Inter, sans-serif; color: #fff; }
+    #root { position: absolute; inset: 0; overflow: hidden; font-family: Inter, sans-serif; color: #fff; }
+    #root .ff { position: absolute; right: 60px; top: 50px; background: rgba(10,11,13,.92); color: #f2b33d; font: 700 30px/1 'Space Mono', monospace; padding: 16px 22px; border-radius: 12px; border: 2px solid #f2b33d; z-index: 7; }
     #root .cam { position: absolute; inset: 0; overflow: hidden; }
     #root .cam img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
     #root .cursor { position: absolute; left: 0; top: 0; width: 56px; height: 56px; z-index: 5; }
@@ -36,7 +37,7 @@
     #root .arr { font-size: 70px; color: #3ddc84; font-weight: 900; }
     #root .banner { position: absolute; left: 0; right: 0; top: 820px; text-align: center; font-size: 84px; font-weight: 900; color: #ff7a5c; }
 </style>
-  <div id="root" data-composition-id="s6" data-width="1920" data-height="1080">
+  <div id="root" data-composition-id="s6" data-width="1920" data-height="1080" style="background:#0a0b0d">
     <div id="s6-a" class="clip cam" data-start="0" data-duration="2.15" data-layout-allow-overflow><img id="s6-a-img" src="assets/shots/03-forged-refused.png" alt="" /></div>
     <div id="s6-b" class="clip cam" data-start="2.15" data-duration="5.38" data-layout-allow-overflow><img id="s6-b-img" src="assets/shots/04-honest-running.png" alt="" /></div>
     <div id="s6-cur" class="clip cursor" data-start="0.2" data-duration="1.95" data-layout-allow-overflow><svg viewBox="0 0 24 24" width="56" height="56"><path d="M3 2l7.5 19 2.6-7.9L21 10.5z" fill="#fff" stroke="#000" stroke-width="1.4" stroke-linejoin="round"/></svg></div>
