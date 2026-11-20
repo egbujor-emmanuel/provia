@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { runScenario, useBlockNumber, useReceipts } from '@/lib/live';
-import { SCENARIO_LABEL } from '@/lib/agent';
+import { SCENARIO_LABEL, type ReceiptSummary } from '@/lib/agent';
 import { ESCROW, BASESCAN } from '@/lib/evidence';
 
 const HeroStage = dynamic(() => import('./HeroStage').then((m) => m.HeroStage), { ssr: false });
@@ -21,9 +21,14 @@ function Stat({ label, children }: { label: string; children: React.ReactNode })
   );
 }
 
-function LiveStrip() {
-  const block = useBlockNumber();
-  const receipts = useReceipts();
+export interface LiveInitial {
+  block: number | null;
+  receipts: ReceiptSummary[] | null;
+}
+
+function LiveStrip({ initial }: { initial: LiveInitial }) {
+  const block = useBlockNumber(4_000, initial.block);
+  const receipts = useReceipts(10_000, initial.receipts ? { rows: initial.receipts } : null);
   const latest = receipts && 'rows' in receipts ? receipts.rows[0] : undefined;
   const tone = latest?.outcome === 'released' ? 'text-ok' : latest?.outcome === 'refused' ? 'text-no' : 'text-white/60';
   return (
@@ -48,7 +53,7 @@ function LiveStrip() {
   );
 }
 
-export function Hero() {
+export function Hero({ initial }: { initial: LiveInitial }) {
   const root = useRef<HTMLElement>(null);
   const [webgl, setWebgl] = useState(true);
   const onUnsupported = useCallback(() => setWebgl(false), []);
@@ -95,7 +100,7 @@ export function Hero() {
       </div>
 
       <div className="hero-in relative z-10 mx-auto mt-10 w-full max-w-[1280px] px-4 pb-8 sm:px-8 lg:mt-0">
-        <LiveStrip />
+        <LiveStrip initial={initial} />
       </div>
     </section>
   );

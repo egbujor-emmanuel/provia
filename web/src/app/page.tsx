@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { Hero } from '@/components/home/Hero';
+import { Hero, type LiveInitial } from '@/components/home/Hero';
+import type { ReceiptSummary } from '@/lib/agent';
 import { LiveDemo } from '@/components/home/LiveDemo';
 import { ProofPath } from '@/components/home/ProofPath';
 import { EVIDENCE, REPO_URL } from '@/lib/evidence';
@@ -25,10 +26,33 @@ function Head({ id, kicker, title, children }: { id: string; kicker: string; tit
   );
 }
 
-export default function Home() {
+export const revalidate = 60;
+
+async function liveInitial(): Promise<LiveInitial> {
+  const [block, receipts] = await Promise.all([
+    fetch('https://sepolia.base.org', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_blockNumber', params: [] }),
+      signal: AbortSignal.timeout(6_000),
+      next: { revalidate: 60 },
+    })
+      .then(async (r) => Number.parseInt(((await r.json()) as { result: string }).result, 16))
+      .catch(() => null),
+    AGENT
+      ? fetch(`${AGENT}/api/receipts`, { signal: AbortSignal.timeout(8_000), next: { revalidate: 60 } })
+          .then(async (r) => (r.ok ? ((await r.json()) as ReceiptSummary[]) : null))
+          .catch(() => null)
+      : Promise.resolve(null),
+  ]);
+  return { block: Number.isFinite(block) ? block : null, receipts };
+}
+
+export default async function Home() {
+  const initial = await liveInitial();
   return (
     <>
-      <Hero />
+      <Hero initial={initial} />
 
       <section id="try" aria-labelledby="try-heading" className="scroll-mt-16">
         <div className="mx-auto max-w-[1280px] px-4 py-20 sm:px-8 sm:py-24">

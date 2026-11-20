@@ -6,8 +6,8 @@ import { listReceipts, type ReceiptSummary } from './agent';
 const BASE_SEPOLIA_RPC = 'https://sepolia.base.org';
 
 /** Latest Base Sepolia block, read live from the public RPC. null = unavailable (never guessed). */
-export function useBlockNumber(intervalMs = 4_000): number | null {
-  const [block, setBlock] = useState<number | null>(null);
+export function useBlockNumber(intervalMs = 4_000, initial: number | null = null): number | null {
+  const [block, setBlock] = useState<number | null>(initial);
   useEffect(() => {
     let alive = true;
     const read = async () => {
@@ -37,8 +37,8 @@ export function useBlockNumber(intervalMs = 4_000): number | null {
 export type ReceiptsState = { rows: ReceiptSummary[] } | { error: string } | null;
 
 /** The agent's latest receipts, refreshed on an interval. */
-export function useReceipts(intervalMs = 10_000): ReceiptsState {
-  const [state, setState] = useState<ReceiptsState>(null);
+export function useReceipts(intervalMs = 10_000, initial: ReceiptsState = null): ReceiptsState {
+  const [state, setState] = useState<ReceiptsState>(initial);
   useEffect(() => {
     let alive = true;
     const read = () =>
