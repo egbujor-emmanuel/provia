@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-19T22:35:56.744Z",
+  "generatedAt": "2026-11-20T16:52:15.206Z",
   "howToVerify": "npm run evidence:verify (no keys needed)",
   "network": {
     "chain": "Base Sepolia",
@@ -7,8 +7,8 @@
     "rpc": "https://sepolia.base.org"
   },
   "contract": {
-    "escrow": "0x2786C763748BED21787916D8EC766F1Cde929a26",
-    "deployTx": "0xf28dd95f3f377e3591149d470cc21625d6f0329a24ff61e3496638d1e7c78d5d",
+    "escrow": "0x92C4a650CB874cB5d450765CEA619c3Dc49aeC79",
+    "deployTx": "0x708f0a81e85f0b404c35879a4b85466ffc81ce98d55ec5df65af3ddce06de29f",
     "zkVerifyProxy": "0x0807C544D38aE7729f8798388d89Be6502A1e8A8",
     "vkHash": "0x23abe0175caa02a03514d25fb4812e6ef5f2cee9a9f03800cafae54735446e14"
   },
@@ -30,50 +30,50 @@
     {
       "claim": "An honest payment was proven and the escrow released",
       "scenario": "honest",
-      "receipt": "https://provia-ch7d.onrender.com/api/receipts/424e142f-33f3-494d-99d2-f59a0467b60b",
-      "tradeId": "1795123410023665",
+      "receipt": "https://provia-ch7d.onrender.com/api/receipts/0b660521-cecc-41a1-adb8-931c0ec005a4",
+      "tradeId": "1795193215969846",
       "outcome": "released",
-      "lockTx": "0x3f7fa6504f5cb48ef69467370fd0b878a909cf288dedb4f04c93d8704a2c6600",
-      "zkVerifyMainnetTx": "0x8127afc6b7110010dd944c8ca9989a1a13a2975bc31c3137c39de67f94359a73",
-      "zkVerifyTestnetTx": "0xdd23d318842b190c921977abdb386177ab0ac7c30d0392ed2e45c0d6e5f6a787",
-      "aggregationId": "67015",
-      "releaseTx": "0xb492783f7205e91a0420e5c4d4f879eacdb3f98043b28816c4ce1a0747e000bf",
+      "lockTx": "0x097c4084cba8497ee58797c8eb7f4d1542b21680a973941f9a407c9ae9725792",
+      "zkVerifyMainnetTx": "0x63b3962731b091746017fb4a80c5d2180ccd9f29d86dc4d0f3d0eef38c2929b1",
+      "zkVerifyTestnetTx": "0x6ba14ea7701a6e4a6a075d509f5e20c367f05511abfb1cec371b1096f9af55d8",
+      "aggregationId": "67287",
+      "releaseTx": "0x19ff297143d46eece014b0fbc37b962265ab43de5fde14496cc7b27879ca27cb",
       "expect": "released"
     },
     {
       "claim": "Attack \"forged-screenshot\" was refused with NO_PAYMENT_AT_PSP; no release",
       "scenario": "forged-screenshot",
-      "receipt": "https://provia-ch7d.onrender.com/api/receipts/29ac5c6c-44fc-49c2-8ea9-a17480697036",
-      "tradeId": "1795123392366125",
+      "receipt": "https://provia-ch7d.onrender.com/api/receipts/727f1c2b-544c-4a33-a4b5-6ab5c87b811f",
+      "tradeId": "1795193435975838",
       "outcome": "NO_PAYMENT_AT_PSP",
-      "lockTx": "0xec59351bd2e9d7b00938a02e5c89c854c0332d2a4881ef93d539e8226eca0f46",
+      "lockTx": "0xec1edb6019779d7acf4aa8b1bf6842d7b6c93c35be5660beb7d2097e680a3fd9",
       "expect": "NO_PAYMENT_AT_PSP"
     },
     {
       "claim": "Attack \"short-payment\" was refused with AMOUNT_SHORT; no release",
       "scenario": "short-payment",
-      "receipt": "https://provia-ch7d.onrender.com/api/receipts/e2734178-a79e-4b8a-a377-35e421e71132",
-      "tradeId": "1795122524640622",
+      "receipt": "https://provia-ch7d.onrender.com/api/receipts/829756de-9f94-47b2-bdf4-14438ac3b488",
+      "tradeId": "1795193448664735",
       "outcome": "AMOUNT_SHORT",
-      "lockTx": "0x73d79e886da508a60e91dd334abc2f5f98274983262148ba7ed30e67259ca212",
+      "lockTx": "0xba07ec55573dda9603d5bb7860083f44c6bdd83798b67c3dbc9bed3bd39b9d20",
       "expect": "AMOUNT_SHORT"
     },
     {
       "claim": "Attack \"wrong-trade\" was refused with TRADE_MISMATCH; no release",
       "scenario": "wrong-trade",
-      "receipt": "https://provia-ch7d.onrender.com/api/receipts/ebfb2e28-ba36-4729-b84e-35f5c3c4b65c",
-      "tradeId": "1795122558785195",
+      "receipt": "https://provia-ch7d.onrender.com/api/receipts/397eac17-eef4-46a6-ac3d-b9b1008b5c97",
+      "tradeId": "1795193470368258",
       "outcome": "TRADE_MISMATCH",
-      "lockTx": "0x9820a95fda81a4ae2d99204686049e128b8cc88dfe4e52326c892605a7314396",
+      "lockTx": "0x3d70f7abbee54a28cdfdc117c8e68afb57a48f810e78db9ed76e963fb6bd8016",
       "expect": "TRADE_MISMATCH"
     },
     {
       "claim": "Attack \"replay\" was refused with REF_REUSED; no release",
       "scenario": "replay",
-      "receipt": "https://provia-ch7d.onrender.com/api/receipts/53fbed2f-213b-4dd6-9969-a2858a05b193",
-      "tradeId": "1795122578503786",
+      "receipt": "https://provia-ch7d.onrender.com/api/receipts/f629cfc1-9af4-427f-a4ab-650cd0de537a",
+      "tradeId": "1795193492447264",
       "outcome": "REF_REUSED",
-      "lockTx": "0x6550a0140b54c0de298a31d3a98041de8aa848cb80e8cad06c2e69d410819e73",
+      "lockTx": "0x70147b5d3260979fcff80c977afcd062fa75abe458058db55005584180179f06",
       "expect": "REF_REUSED"
     }
   ]

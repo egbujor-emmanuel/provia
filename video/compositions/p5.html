@@ -9,7 +9,8 @@
     #root .tag { flex: none; background: #3ddc84; color: #06140c; font: 700 36px/1 'Space Mono', monospace; padding: 18px 24px; border-radius: 14px; }
     #root .txt { background: rgba(10,11,13,.92); color: #fff; font-weight: 700; font-size: 52px; line-height: 1.15; padding: 20px 30px; border-radius: 16px; border: 2px solid rgba(255,255,255,.12); }
     #root .stage { position: absolute; inset: 0; background: radial-gradient(80% 70% at 30% 40%, #1a1b20, #0a0b0d 70%); }
-    #root .stage.center { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    #root .drift { position: absolute; inset: 0; }
+    #root .drift.center { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
     #root .alertcard { position: absolute; left: 150px; top: 220px; width: 720px; padding: 52px 56px; background: #fbf8f1; color: #15140f; border-radius: 40px; box-shadow: 0 40px 90px rgba(0,0,0,.6); }
     #root .alertcard .a1 { font-size: 30px; color: #827d72; }
     #root .alertcard .a2 { margin-top: 26px; font-size: 38px; font-weight: 700; color: #0f7a4a; }
@@ -36,10 +37,11 @@
     #root .banner { position: absolute; left: 0; right: 0; top: 820px; text-align: center; font-size: 84px; font-weight: 900; color: #ff7a5c; }
 </style>
   <div id="root" data-composition-id="p5" data-width="1920" data-height="1080">
-    <div id="p5-stage" class="clip stage " data-start="0" data-duration="10.34"><p id="p5-title" class="dtitle">How it works</p><div class="row"><div id="p5-box0" class="box"><span class="num">1</span><p class="bt">zkTLS</p><p class="bd">Proves what the payment company says</p></div><span id="p5-arr1" class="arr">→</span><div id="p5-box1" class="box"><span class="num">2</span><p class="bt">Groth16</p><p class="bd">Proves the trade rules</p></div><span id="p5-arr2" class="arr">→</span><div id="p5-box2" class="box"><span class="num">3</span><p class="bt">zkVerify</p><p class="bd">Verifies the proof</p></div><span id="p5-arr3" class="arr">→</span><div id="p5-box3" class="box"><span class="num">4</span><p class="bt">Escrow</p><p class="bd">Pays only after verification</p></div></div></div>
+    <div id="p5-stage" class="clip stage" data-start="0" data-duration="10.34"><div id="p5-drift" class="drift "><p id="p5-title" class="dtitle">How it works</p><div class="row"><div id="p5-box0" class="box"><span class="num">1</span><p class="bt">zkTLS</p><p class="bd">Proves what the payment company says</p></div><span id="p5-arr1" class="arr">→</span><div id="p5-box1" class="box"><span class="num">2</span><p class="bt">Groth16</p><p class="bd">Proves the trade rules</p></div><span id="p5-arr2" class="arr">→</span><div id="p5-box2" class="box"><span class="num">3</span><p class="bt">zkVerify</p><p class="bd">Verifies the proof</p></div><span id="p5-arr3" class="arr">→</span><div id="p5-box3" class="box"><span class="num">4</span><p class="bt">Escrow</p><p class="bd">Pays only after verification</p></div></div></div></div>
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#p5-drift", { scale: 1 }, { scale: 1.045, duration: 10.34, ease: "none" }, 0);
     tl.fromTo("#p5-title", { opacity: 0 }, { opacity: 1, duration: 0.4 }, 0.1);
     tl.fromTo(["#p5-box0"], { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 2.15);
     tl.fromTo(["#p5-box1", "#p5-arr1"], { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 6.05);

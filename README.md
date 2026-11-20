@@ -68,16 +68,16 @@ So even the agent cannot pay a different address, accept a lower price or a late
 
 ## Proof it runs
 
-The first live trade on the deployed agent ([receipt](https://provia-ch7d.onrender.com/api/receipts/3cf7a978-730b-42a1-a54c-9ec77c743eda)):
+A live honest trade on the current escrow ([receipt](https://provia-ch7d.onrender.com/api/receipts/0b660521-cecc-41a1-adb8-931c0ec005a4)):
 
 | Step | Link |
 |---|---|
-| Lock 0.05 test USDC | [Basescan](https://sepolia.basescan.org/tx/0xe37391cec2221d32228f1996a9243fd386c27e69ad375f259b36dec6be5f13ff) |
-| Groth16 proof verified on zkVerify mainnet | [Subscan](https://zkverify.subscan.io/extrinsic/0x1e11a7dc810b63166a0beaa0f7958baa3a1375e972da87bc752f3510d8277905) |
-| Verified and aggregated on zkVerify testnet (aggregation 66999) | [Subscan](https://zkverify-testnet.subscan.io/extrinsic/0x3214d4232db24fd03d8b95630572fd84f3536f15234cd60a24f7fdfd611e3e2a) |
-| Escrow release to the buyer | [Basescan](https://sepolia.basescan.org/tx/0x9b083be9e004417e3acd9aafdf9a90821fa94a3bc8c3a31aa595b6d5aef61746) |
+| Lock 0.05 test USDC | [Basescan](https://sepolia.basescan.org/tx/0x097c4084cba8497ee58797c8eb7f4d1542b21680a973941f9a407c9ae9725792) |
+| Groth16 proof verified on zkVerify mainnet | [Subscan](https://zkverify.subscan.io/extrinsic/0x63b3962731b091746017fb4a80c5d2180ccd9f29d86dc4d0f3d0eef38c2929b1) |
+| Verified and aggregated on zkVerify testnet (aggregation 67287) | [Subscan](https://zkverify-testnet.subscan.io/extrinsic/0x6ba14ea7701a6e4a6a075d509f5e20c367f05511abfb1cec371b1096f9af55d8) |
+| Escrow release to the buyer (sent by the agent) | [Basescan](https://sepolia.basescan.org/tx/0x19ff297143d46eece014b0fbc37b962265ab43de5fde14496cc7b27879ca27cb) |
 
-All four attacks were refused on the same deployment; their receipts are in [evidence/claims.json](evidence/claims.json).
+All four attacks were refused on the same escrow; their receipts are in [evidence/claims.json](evidence/claims.json). An earlier escrow (`0x2786…9a26`, before the agent-only release fix) is recorded in `evidence/deployment-base-sepolia-v1.json`.
 
 | Contract | Address |
 |---|---|

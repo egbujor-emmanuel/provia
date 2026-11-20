@@ -12,11 +12,11 @@ const deployment = JSON.parse(readFileSync('evidence/deployment-base-sepolia.jso
 
 /** Live runs that back the public claims (receipt ids on the deployed agent). */
 const RUNS = [
-  { id: '424e142f-33f3-494d-99d2-f59a0467b60b', scenario: 'honest', expect: 'released' },
-  { id: '29ac5c6c-44fc-49c2-8ea9-a17480697036', scenario: 'forged-screenshot', expect: 'NO_PAYMENT_AT_PSP' },
-  { id: 'e2734178-a79e-4b8a-a377-35e421e71132', scenario: 'short-payment', expect: 'AMOUNT_SHORT' },
-  { id: 'ebfb2e28-ba36-4729-b84e-35f5c3c4b65c', scenario: 'wrong-trade', expect: 'TRADE_MISMATCH' },
-  { id: '53fbed2f-213b-4dd6-9969-a2858a05b193', scenario: 'replay', expect: 'REF_REUSED' },
+  { id: '0b660521-cecc-41a1-adb8-931c0ec005a4', scenario: 'honest', expect: 'released' },
+  { id: '727f1c2b-544c-4a33-a4b5-6ab5c87b811f', scenario: 'forged-screenshot', expect: 'NO_PAYMENT_AT_PSP' },
+  { id: '829756de-9f94-47b2-bdf4-14438ac3b488', scenario: 'short-payment', expect: 'AMOUNT_SHORT' },
+  { id: '397eac17-eef4-46a6-ac3d-b9b1008b5c97', scenario: 'wrong-trade', expect: 'TRADE_MISMATCH' },
+  { id: 'f629cfc1-9af4-427f-a4ab-650cd0de537a', scenario: 'replay', expect: 'REF_REUSED' },
 ] as const;
 
 const ESCROW_ABI = [

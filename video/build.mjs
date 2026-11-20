@@ -70,7 +70,9 @@ function caption(id, show, length) {
 function designed(id, l, length, plan) {
   const parts = [];
   const js = [];
-  const timed = (inner, cls = '') => `<div id="${id}-stage" class="clip stage ${cls}" data-start="0" data-duration="${r2(length)}">${inner}</div>`;
+  const hold = plan.kind === 'end' ? ' data-hold' : '';
+  const timed = (inner, cls = '') => `<div id="${id}-stage" class="clip stage" data-start="0" data-duration="${r2(length)}"${hold}><div id="${id}-drift" class="drift ${cls}">${inner}</div></div>`;
+  js.push(`tl.fromTo("#${id}-drift", { scale: 1 }, { scale: 1.045, duration: ${r2(length)}, ease: "none" }, 0);`);
   if (plan.kind === 'alert') {
     parts.push(
       timed(`
@@ -80,11 +82,11 @@ function designed(id, l, length, plan) {
         <p class="a3">$1,500.00</p>
         <p class="a4">Transfer received from Buyer</p>
         <p class="a5">Status: SUCCESSFUL</p>
-        ${plan.fake ? `<span id="${id}-fake" class="fake">FAKE</span>` : ''}
+        ${plan.fake ? `<span id="${id}-fake" class="fake" data-layout-allow-overlap>FAKE</span>` : ''}
       </div>
       <h2 id="${id}-head" class="side">${esc(l.show)}</h2>`),
     );
-    js.push(`tl.fromTo("#${id}-card", { x: -60, opacity: 0 }, { x: 0, opacity: 1, duration: 0.7, ease: "power3.out" }, 0.1);`);
+    js.push(`tl.fromTo("#${id}-card", { x: -24, rotation: -1.5 }, { x: 0, rotation: 0, duration: 0.9, ease: "power3.out" }, 0);`);
     js.push(`tl.fromTo("#${id}-head", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.6, ease: "power3.out" }, ${r2(LEAD)});`);
     if (plan.fake) js.push(`tl.fromTo("#${id}-fake", { scale: 2.6, opacity: 0, rotation: -14 }, { scale: 1, opacity: 1, rotation: -10, duration: 0.32, ease: "back.out(2.4)" }, ${r2(LEAD + plan.fake)});`);
   } else if (plan.kind === 'text') {
@@ -157,7 +159,8 @@ const STYLE = `
     #root .tag { flex: none; background: #3ddc84; color: #06140c; font: 700 36px/1 'Space Mono', monospace; padding: 18px 24px; border-radius: 14px; }
     #root .txt { background: rgba(10,11,13,.92); color: #fff; font-weight: 700; font-size: 52px; line-height: 1.15; padding: 20px 30px; border-radius: 16px; border: 2px solid rgba(255,255,255,.12); }
     #root .stage { position: absolute; inset: 0; background: radial-gradient(80% 70% at 30% 40%, #1a1b20, #0a0b0d 70%); }
-    #root .stage.center { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+    #root .drift { position: absolute; inset: 0; }
+    #root .drift.center { display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
     #root .alertcard { position: absolute; left: 150px; top: 220px; width: 720px; padding: 52px 56px; background: #fbf8f1; color: #15140f; border-radius: 40px; box-shadow: 0 40px 90px rgba(0,0,0,.6); }
     #root .alertcard .a1 { font-size: 30px; color: #827d72; }
     #root .alertcard .a2 { margin-top: 26px; font-size: 38px; font-weight: 700; color: #0f7a4a; }
