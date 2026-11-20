@@ -5,7 +5,7 @@
 ```bash
 git clone https://github.com/egbujor-emmanuel/provia && cd provia
 npm ci
-npm run verify            # agent typecheck + 55 tests (10 circuit, 10 contract, 35 agent)
+npm run verify            # agent typecheck + 58 tests (10 circuit, 13 contract, 35 agent)
 npm run evidence:verify   # 19 checks of the public claims against Base Sepolia and the live receipts
 ```
 

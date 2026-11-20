@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { getConfig, startScenario, formatUsdc, type AgentConfig } from '@/lib/agent';
 import { ReceiptView } from '@/components/receipt/ReceiptView';
 
@@ -18,22 +18,27 @@ export function LiveDemo() {
   const [receiptId, setReceiptId] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const busyRef = useRef(false);
 
   useEffect(() => {
     getConfig().then(setConfig).catch((e: Error) => setConfigError(e.message));
   }, []);
 
-  // Presets in the hero ask the lab to run a scenario.
+  // Presets in the hero ask the lab to run a scenario. Registered once; always calls the latest run().
+  const runRef = useRef(run);
+  runRef.current = run;
   useEffect(() => {
     const onRun = (e: Event) => {
       const id = (e as CustomEvent<string>).detail;
-      if (typeof id === 'string') void run(id);
+      if (typeof id === 'string') void runRef.current(id);
     };
     window.addEventListener('provia:run', onRun);
     return () => window.removeEventListener('provia:run', onRun);
-  });
+  }, []);
 
   async function run(id: string) {
+    if (busyRef.current) return;
+    busyRef.current = true;
     setBusy(id);
     setError(null);
     try {
@@ -42,6 +47,7 @@ export function LiveDemo() {
     } catch (e) {
       setError((e as Error).message);
     } finally {
+      busyRef.current = false;
       setBusy(null);
     }
   }
@@ -87,12 +93,12 @@ export function LiveDemo() {
       </div>
       <div className="min-w-0 p-5 sm:p-8">
         {receiptId ? (
-          <ReceiptView id={receiptId} compact />
+          <ReceiptView key={receiptId} id={receiptId} compact />
         ) : (
           <div className="flex h-full min-h-72 flex-col items-center justify-center gap-3 text-center">
             <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-no">Awaiting a claim</span>
             <p className="max-w-xs font-display text-2xl leading-tight text-ink-2">Pick one. Start with the forged screenshot.</p>
-            <p className="max-w-xs text-xs text-ink-3">Refusals settle in seconds. The honest release waits for zkVerify’s aggregation to reach Base Sepolia, usually a few minutes.</p>
+            <p className="max-w-xs text-xs text-ink-3">Refusals settle in seconds. The honest release waits for zkVerify’s aggregation to reach Base Sepolia: 1 to 4 minutes.</p>
           </div>
         )}
       </div>

@@ -586,8 +586,49 @@
     }
   },
   "checks": {
-    "latest": null,
-    "revisions": {},
+    "latest": {
+      "revision": "1350445f-660d-4178-9a2d-507313bb336c",
+      "id": "fb0e8ab1-dd17-4c52-a7f1-6e976ade9a08"
+    },
+    "revisions": {
+      "1350445f-660d-4178-9a2d-507313bb336c": [
+        {
+          "id": "fb0e8ab1-dd17-4c52-a7f1-6e976ade9a08",
+          "scope": "project",
+          "report": "C:\\Users\\Yoma Maroh\\hackathons\\zkverify-agent-games\\provia\\video\\.hyperframes\\artifacts\\checks\\fb0e8ab1-dd17-4c52-a7f1-6e976ade9a08.json",
+          "metadata": {
+            "ok": false,
+            "browserSkipped": false,
+            "options": {
+              "samples": 9,
+              "atTransitions": false,
+              "maxIssues": 80,
+              "collapseStatic": true,
+              "tolerance": 2,
+              "timeout": 45000,
+              "cache": true,
+              "contrast": true,
+              "craft": true,
+              "strict": false,
+              "snapshots": false,
+              "safeZones": [
+                "tiktok",
+                "reels",
+                "shorts"
+              ],
+              "browserGpuMode": "auto",
+              "includeUnmounted": false
+            }
+          },
+          "createdAt": 1795192606476,
+          "contentHash": "e7fbfb8f0e096c4d730f25df7fc30ecb875aab0a791af213cd027f762fe39440",
+          "revision": "1350445f-660d-4178-9a2d-507313bb336c",
+          "inputFingerprint": "471b0676e5fe2a4045f6927155b3a9a51e4f48d6c25baa02331b2a7e7f9c290b",
+          "inputScope": "local-project-files",
+          "attribution": "recorded-revision"
+        }
+      ]
+    },
     "unversioned": []
   },
   "snapshots": {
@@ -600,7 +641,6 @@
         {
           "scope": "full",
           "id": "f0569d3a-692e-408c-918b-2026d5f2962a-0",
-          "image": "C:\\Users\\Yoma Maroh\\hackathons\\zkverify-agent-games\\provia\\video\\.hyperframes\\artifacts\\snapshots\\9e54eea9-bca1-4ba1-b1f2-6490d3b462b3\\frame-00-at-4s.png",
           "time": 4,
           "metadata": {
             "width": 1920,
@@ -615,12 +655,13 @@
           "revision": "dcb149da-83b3-4f9a-9ca7-bd25160b92e8",
           "inputFingerprint": "3b06f09efcdf6c5572214c19931c0f5573bac40659a8a7a53f2c1d98a0d57376",
           "inputScope": "local-project-files",
-          "attribution": "recorded-revision"
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "c499b69b-1583-4473-a1d7-5475ce8fc2bf"
         },
         {
           "scope": "full",
           "id": "f0569d3a-692e-408c-918b-2026d5f2962a-1",
-          "image": "C:\\Users\\Yoma Maroh\\hackathons\\zkverify-agent-games\\provia\\video\\.hyperframes\\artifacts\\snapshots\\9e54eea9-bca1-4ba1-b1f2-6490d3b462b3\\frame-01-at-12.5s.png",
           "time": 12.5,
           "metadata": {
             "width": 1920,
@@ -635,12 +676,13 @@
           "revision": "dcb149da-83b3-4f9a-9ca7-bd25160b92e8",
           "inputFingerprint": "3b06f09efcdf6c5572214c19931c0f5573bac40659a8a7a53f2c1d98a0d57376",
           "inputScope": "local-project-files",
-          "attribution": "recorded-revision"
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "c499b69b-1583-4473-a1d7-5475ce8fc2bf"
         },
         {
           "scope": "full",
           "id": "f0569d3a-692e-408c-918b-2026d5f2962a-2",
-          "image": "C:\\Users\\Yoma Maroh\\hackathons\\zkverify-agent-games\\provia\\video\\.hyperframes\\artifacts\\snapshots\\9e54eea9-bca1-4ba1-b1f2-6490d3b462b3\\frame-02-at-18s.png",
           "time": 18,
           "metadata": {
             "width": 1920,
@@ -655,12 +697,13 @@
           "revision": "dcb149da-83b3-4f9a-9ca7-bd25160b92e8",
           "inputFingerprint": "3b06f09efcdf6c5572214c19931c0f5573bac40659a8a7a53f2c1d98a0d57376",
           "inputScope": "local-project-files",
-          "attribution": "recorded-revision"
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "c499b69b-1583-4473-a1d7-5475ce8fc2bf"
         },
         {
           "scope": "full",
           "id": "f0569d3a-692e-408c-918b-2026d5f2962a-3",
-          "image": "C:\\Users\\Yoma Maroh\\hackathons\\zkverify-agent-games\\provia\\video\\.hyperframes\\artifacts\\snapshots\\9e54eea9-bca1-4ba1-b1f2-6490d3b462b3\\frame-03-at-27s.png",
           "time": 27,
           "metadata": {
             "width": 1920,
@@ -675,12 +718,13 @@
           "revision": "dcb149da-83b3-4f9a-9ca7-bd25160b92e8",
           "inputFingerprint": "3b06f09efcdf6c5572214c19931c0f5573bac40659a8a7a53f2c1d98a0d57376",
           "inputScope": "local-project-files",
-          "attribution": "recorded-revision"
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "c499b69b-1583-4473-a1d7-5475ce8fc2bf"
         },
         {
           "scope": "full",
           "id": "f0569d3a-692e-408c-918b-2026d5f2962a-4",
-          "image": "C:\\Users\\Yoma Maroh\\hackathons\\zkverify-agent-games\\provia\\video\\.hyperframes\\artifacts\\snapshots\\9e54eea9-bca1-4ba1-b1f2-6490d3b462b3\\frame-04-at-39s.png",
           "time": 39,
           "metadata": {
             "width": 1920,
@@ -695,12 +739,13 @@
           "revision": "dcb149da-83b3-4f9a-9ca7-bd25160b92e8",
           "inputFingerprint": "3b06f09efcdf6c5572214c19931c0f5573bac40659a8a7a53f2c1d98a0d57376",
           "inputScope": "local-project-files",
-          "attribution": "recorded-revision"
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "c499b69b-1583-4473-a1d7-5475ce8fc2bf"
         },
         {
           "scope": "full",
           "id": "f0569d3a-692e-408c-918b-2026d5f2962a-5",
-          "image": "C:\\Users\\Yoma Maroh\\hackathons\\zkverify-agent-games\\provia\\video\\.hyperframes\\artifacts\\snapshots\\9e54eea9-bca1-4ba1-b1f2-6490d3b462b3\\frame-05-at-48.5s.png",
           "time": 48.5,
           "metadata": {
             "width": 1920,
@@ -715,12 +760,13 @@
           "revision": "dcb149da-83b3-4f9a-9ca7-bd25160b92e8",
           "inputFingerprint": "3b06f09efcdf6c5572214c19931c0f5573bac40659a8a7a53f2c1d98a0d57376",
           "inputScope": "local-project-files",
-          "attribution": "recorded-revision"
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "c499b69b-1583-4473-a1d7-5475ce8fc2bf"
         },
         {
           "scope": "full",
           "id": "f0569d3a-692e-408c-918b-2026d5f2962a-6",
-          "image": "C:\\Users\\Yoma Maroh\\hackathons\\zkverify-agent-games\\provia\\video\\.hyperframes\\artifacts\\snapshots\\9e54eea9-bca1-4ba1-b1f2-6490d3b462b3\\frame-06-at-72s.png",
           "time": 72,
           "metadata": {
             "width": 1920,
@@ -735,12 +781,13 @@
           "revision": "dcb149da-83b3-4f9a-9ca7-bd25160b92e8",
           "inputFingerprint": "3b06f09efcdf6c5572214c19931c0f5573bac40659a8a7a53f2c1d98a0d57376",
           "inputScope": "local-project-files",
-          "attribution": "recorded-revision"
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "c499b69b-1583-4473-a1d7-5475ce8fc2bf"
         },
         {
           "scope": "full",
           "id": "f0569d3a-692e-408c-918b-2026d5f2962a-7",
-          "image": "C:\\Users\\Yoma Maroh\\hackathons\\zkverify-agent-games\\provia\\video\\.hyperframes\\artifacts\\snapshots\\9e54eea9-bca1-4ba1-b1f2-6490d3b462b3\\frame-07-at-88s.png",
           "time": 88,
           "metadata": {
             "width": 1920,
@@ -755,12 +802,13 @@
           "revision": "dcb149da-83b3-4f9a-9ca7-bd25160b92e8",
           "inputFingerprint": "3b06f09efcdf6c5572214c19931c0f5573bac40659a8a7a53f2c1d98a0d57376",
           "inputScope": "local-project-files",
-          "attribution": "recorded-revision"
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "c499b69b-1583-4473-a1d7-5475ce8fc2bf"
         },
         {
           "scope": "full",
           "id": "f0569d3a-692e-408c-918b-2026d5f2962a-8",
-          "image": "C:\\Users\\Yoma Maroh\\hackathons\\zkverify-agent-games\\provia\\video\\.hyperframes\\artifacts\\snapshots\\9e54eea9-bca1-4ba1-b1f2-6490d3b462b3\\frame-08-at-104s.png",
           "time": 104,
           "metadata": {
             "width": 1920,
@@ -775,12 +823,13 @@
           "revision": "dcb149da-83b3-4f9a-9ca7-bd25160b92e8",
           "inputFingerprint": "3b06f09efcdf6c5572214c19931c0f5573bac40659a8a7a53f2c1d98a0d57376",
           "inputScope": "local-project-files",
-          "attribution": "recorded-revision"
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "c499b69b-1583-4473-a1d7-5475ce8fc2bf"
         },
         {
           "scope": "full",
           "id": "f0569d3a-692e-408c-918b-2026d5f2962a-9",
-          "image": "C:\\Users\\Yoma Maroh\\hackathons\\zkverify-agent-games\\provia\\video\\.hyperframes\\artifacts\\snapshots\\9e54eea9-bca1-4ba1-b1f2-6490d3b462b3\\frame-09-at-124s.png",
           "time": 124,
           "metadata": {
             "width": 1920,
@@ -795,12 +844,13 @@
           "revision": "dcb149da-83b3-4f9a-9ca7-bd25160b92e8",
           "inputFingerprint": "3b06f09efcdf6c5572214c19931c0f5573bac40659a8a7a53f2c1d98a0d57376",
           "inputScope": "local-project-files",
-          "attribution": "recorded-revision"
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "c499b69b-1583-4473-a1d7-5475ce8fc2bf"
         },
         {
           "scope": "full",
           "id": "f0569d3a-692e-408c-918b-2026d5f2962a-10",
-          "image": "C:\\Users\\Yoma Maroh\\hackathons\\zkverify-agent-games\\provia\\video\\.hyperframes\\artifacts\\snapshots\\9e54eea9-bca1-4ba1-b1f2-6490d3b462b3\\frame-10-at-132s.png",
           "time": 132,
           "metadata": {
             "width": 1920,
@@ -815,12 +865,13 @@
           "revision": "dcb149da-83b3-4f9a-9ca7-bd25160b92e8",
           "inputFingerprint": "3b06f09efcdf6c5572214c19931c0f5573bac40659a8a7a53f2c1d98a0d57376",
           "inputScope": "local-project-files",
-          "attribution": "recorded-revision"
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "c499b69b-1583-4473-a1d7-5475ce8fc2bf"
         },
         {
           "scope": "full",
           "id": "f0569d3a-692e-408c-918b-2026d5f2962a-11",
-          "image": "C:\\Users\\Yoma Maroh\\hackathons\\zkverify-agent-games\\provia\\video\\.hyperframes\\artifacts\\snapshots\\9e54eea9-bca1-4ba1-b1f2-6490d3b462b3\\frame-11-at-138s.png",
           "time": 138,
           "metadata": {
             "width": 1920,
@@ -835,12 +886,13 @@
           "revision": "dcb149da-83b3-4f9a-9ca7-bd25160b92e8",
           "inputFingerprint": "3b06f09efcdf6c5572214c19931c0f5573bac40659a8a7a53f2c1d98a0d57376",
           "inputScope": "local-project-files",
-          "attribution": "recorded-revision"
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "c499b69b-1583-4473-a1d7-5475ce8fc2bf"
         },
         {
           "scope": "full",
           "id": "f0569d3a-692e-408c-918b-2026d5f2962a-12",
-          "image": "C:\\Users\\Yoma Maroh\\hackathons\\zkverify-agent-games\\provia\\video\\.hyperframes\\artifacts\\snapshots\\9e54eea9-bca1-4ba1-b1f2-6490d3b462b3\\frame-12-at-139.99s.png",
           "time": 139.99,
           "metadata": {
             "width": 1920,
@@ -855,7 +907,9 @@
           "revision": "dcb149da-83b3-4f9a-9ca7-bd25160b92e8",
           "inputFingerprint": "3b06f09efcdf6c5572214c19931c0f5573bac40659a8a7a53f2c1d98a0d57376",
           "inputScope": "local-project-files",
-          "attribution": "recorded-revision"
+          "attribution": "recorded-revision",
+          "status": "cleaned",
+          "cleanedAfterRender": "c499b69b-1583-4473-a1d7-5475ce8fc2bf"
         }
       ],
       "1350445f-660d-4178-9a2d-507313bb336c": [
@@ -1106,13 +1160,15 @@
   },
   "renders": {
     "latest": {
-      "id": "0ddb5946-5b22-4ea5-8987-cfb3b8427679",
-      "completedAt": 1795128877705,
-      "output": "C:\\Users\\Yoma Maroh\\hackathons\\zkverify-agent-games\\provia\\video\\renders\\provia-walkthrough.mp4",
+      "id": "c499b69b-1583-4473-a1d7-5475ce8fc2bf",
+      "completedAt": 1795142368012,
+      "output": "C:\\Users\\Yoma Maroh\\hackathons\\zkverify-agent-games\\provia\\video\\renders\\provia-walkthrough-v2.mp4",
       "status": "completed",
-      "revision": null
+      "revision": "1350445f-660d-4178-9a2d-507313bb336c"
     },
-    "retainedRevisions": []
+    "retainedRevisions": [
+      "1350445f-660d-4178-9a2d-507313bb336c"
+    ]
   },
   "pendingArtifactCleanup": []
 }

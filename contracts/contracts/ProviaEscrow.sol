@@ -21,17 +21,26 @@ interface IVerifyProofAggregation {
 /// @notice Holds a seller's tokens until zkVerify attests a Groth16 proof that the buyer's
 /// fiat payment cleared under the trade's release policy (PRD §3, §6).
 /// The leaf is always rebuilt here from the public inputs; a caller-supplied leaf is never trusted.
+/// Trust split: the agent verifies the zkTLS payment proof off-chain and is the only caller of
+/// release(); the contract enforces the trade binding, recipient, price, deadline, one-time
+/// nullifier and zkVerify's attestation, so even the agent cannot pay a different address,
+/// a lower price, a late payment or the same payment twice.
 contract ProviaEscrow is ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     bytes32 public constant PROVING_SYSTEM_ID = keccak256(abi.encodePacked("groth16"));
     bytes32 public constant VERSION_HASH = sha256(abi.encodePacked(""));
+    /// @dev BN254 scalar field order r.
     uint256 internal constant SNARK_SCALAR_FIELD =
-        21888242871839275222246405745257275088548364400416711303009522949311349895999 + 618;
+        21888242871839275222246405745257275088548364400416034343698204186575808495617;
 
     IVerifyProofAggregation public immutable zkVerify;
     bytes32 public immutable vkHash;
     IERC20 public immutable token;
+    /// @notice The only address allowed to release: the agent that verified the zkTLS proof.
+    address public immutable agent;
+    /// @notice zkVerify aggregation domain whose roots this contract accepts.
+    uint256 public immutable aggregationDomain;
 
     enum State { None, Locked, Released, Refunded }
 
@@ -64,15 +73,19 @@ contract ProviaEscrow is ReentrancyGuard {
     error NullifierReused();
     error InputOutOfField();
     error ProofNotAttested();
+    error NotAgent();
+    error WrongDomain();
 
     event TradeLocked(uint256 indexed tradeId, address indexed seller, address recipient, uint256 tokenAmount, uint64 priceKobo, uint64 deadline);
     event Released(uint256 indexed tradeId, address indexed recipient, uint256 tokenAmount, uint256 nullifier, bytes32 claimCommit, bytes32 leaf, uint256 aggregationId);
     event Refunded(uint256 indexed tradeId, address indexed seller, uint256 tokenAmount);
 
-    constructor(IVerifyProofAggregation zkVerify_, bytes32 vkHash_, IERC20 token_) {
+    constructor(IVerifyProofAggregation zkVerify_, bytes32 vkHash_, IERC20 token_, address agent_, uint256 aggregationDomain_) {
         zkVerify = zkVerify_;
         vkHash = vkHash_;
         token = token_;
+        agent = agent_;
+        aggregationDomain = aggregationDomain_;
     }
 
     /// @notice Seller locks tokens for a trade. tradeId must be unique and non-zero.
@@ -90,20 +103,23 @@ contract ProviaEscrow is ReentrancyGuard {
         emit TradeLocked(tradeId, msg.sender, recipient, tokenAmount, priceKobo, deadline);
     }
 
-    /// @notice Anyone may trigger release; funds can only go to the trade's recipient.
+    /// @notice Only the agent may release, and funds can only go to the trade's recipient.
     /// @param nullifier Poseidon(paystack reference), the circuit's public output.
     /// @param claimCommit Poseidon commitment to the zkTLS-revealed payment fields.
     function release(uint256 tradeId, uint256 nullifier, uint256 claimCommit, Attestation calldata att)
         external
         nonReentrant
     {
+        if (msg.sender != agent) revert NotAgent();
+        if (att.domainId != aggregationDomain) revert WrongDomain();
         Trade storage t = trades[tradeId];
         if (t.state != State.Locked) revert TradeNotLocked();
+        if (block.timestamp > t.deadline) revert DeadlinePassed();
         if (nullifierUsed[nullifier]) revert NullifierReused();
         if (nullifier >= SNARK_SCALAR_FIELD || claimCommit >= SNARK_SCALAR_FIELD) revert InputOutOfField();
 
         bytes32 leaf = statementLeaf(tradeId, uint256(uint160(t.recipient)), t.priceKobo, t.deadline, nullifier, claimCommit);
-        bool ok = zkVerify.verifyProofAggregation(att.domainId, att.aggregationId, leaf, att.merklePath, att.leafCount, att.index);
+        bool ok = zkVerify.verifyProofAggregation(aggregationDomain, att.aggregationId, leaf, att.merklePath, att.leafCount, att.index);
         if (!ok) revert ProofNotAttested();
 
         nullifierUsed[nullifier] = true;

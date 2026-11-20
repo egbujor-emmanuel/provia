@@ -10,6 +10,9 @@ export class RateLimiter {
   }
 
   take(key: string, nowMs: number = Date.now()): boolean {
+    if (this.#hits.size > 10_000) {
+      for (const [k, v] of this.#hits) if (v.resetAt <= nowMs) this.#hits.delete(k);
+    }
     const h = this.#hits.get(key);
     if (!h || h.resetAt <= nowMs) {
       this.#hits.set(key, { count: 1, resetAt: nowMs + this.#windowMs });

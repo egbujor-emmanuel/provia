@@ -5,7 +5,7 @@
 | 0:00–0:30 | Open [provia-ten.vercel.app](https://provia-ten.vercel.app). Move the cursor over the alert | The lens shows what the processor returned under a forged screenshot: no such transaction, refused |
 | 0:30–1:30 | Click **Try a forged payment** | A trade is locked on Base Sepolia (lock link), then refused with `NO_PAYMENT_AT_PSP`. The escrow is never asked to release |
 | 1:30–2:30 | In the attack lab run **Short payment** and **Replay** | `AMOUNT_SHORT` after a real zkTLS proof of an underpayment; `REF_REUSED` for a payment that already released a trade |
-| 2:30–4:00 | Run **Honest buyer** and watch the receipt | zkTLS proof, Groth16, zkVerify mainnet, zkVerify aggregation, then the release on Basescan, in about 90 s |
+| 2:30–4:00 | Run **Honest buyer** and watch the receipt | zkTLS proof, Groth16, zkVerify mainnet, zkVerify aggregation, then the release on Basescan, in 1 to 4 minutes |
 | 4:00–5:00 | Verify it yourself: `npm ci && npm run evidence:verify` | 19 checks against Base Sepolia and the public receipts, no keys needed |
 
 ## What to judge
@@ -19,7 +19,7 @@
 
 ## What the agent cannot do
 
-- Release funds on its own judgement: the contract enforces the proof.
+- Release funds on its own judgement: it releases only with a zkVerify-attested proof, and the contract checks it.
 - Send funds anywhere but the recipient recorded at lock time.
 - Release twice for one payment: the nullifier is `Poseidon(reference)`, burned on release.
 - Accept a caller-supplied leaf: the contract recomputes it.

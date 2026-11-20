@@ -133,10 +133,12 @@ export function TruthLens({ onUnsupported }: { onUnsupported: () => void }) {
 
   useEffect(() => {
     const c = document.createElement('canvas');
-    if (!c.getContext('webgl2') && !c.getContext('webgl')) {
+    const probe = (c.getContext('webgl2') ?? c.getContext('webgl')) as WebGLRenderingContext | null;
+    if (!probe) {
       onUnsupported();
       return;
     }
+    probe.getExtension('WEBGL_lose_context')?.loseContext();
     const still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     setEnv({ still });
     const el = host.current;

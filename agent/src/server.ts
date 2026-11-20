@@ -58,18 +58,51 @@ if (ctx) {
   if (ref) ctx.lastReleasedReference = ref;
 }
 
-const demoLimiter = new RateLimiter({ perWindow: 6, windowMs: 60 * 60_000 });
+const HOUR_MS = 60 * 60_000;
+const demoLimiter = new RateLimiter({ perWindow: 6, windowMs: HOUR_MS });
+/** One bucket for everyone: caps total spend even if per-visitor keys are spoofed. */
+const globalLimiter = new RateLimiter({ perWindow: 30, windowMs: HOUR_MS });
+const readLimiter = new RateLimiter({ perWindow: 120, windowMs: 60_000 });
 let demoRunning = 0;
-const MAX_CONCURRENT_DEMOS = 2;
+const MAX_CONCURRENT_RUNS = 2;
+/** A run that never settles must not hold its slot forever. */
+const RUN_SLOT_TIMEOUT_MS = 30 * 60_000;
+const MAX_AGENT_BODY_BYTES = 64 * 1024;
+const WEB_ORIGINS = new Set([env.WEB_ORIGIN ?? 'https://provia-ten.vercel.app', 'http://localhost:3000']);
+
+/**
+ * Client address for rate limiting. Render's proxy appends the connecting address to
+ * X-Forwarded-For, so the rightmost entry is the one a client cannot forge.
+ */
+function clientKey(header: string | undefined): string {
+  const parts = (header ?? '').split(',').map((p) => p.trim()).filter(Boolean);
+  return parts.at(-1) ?? 'local';
+}
+
+/** Hold a run slot until the receipt settles or the timeout passes, whichever is first. */
+function holdSlot(receiptId: string): void {
+  demoRunning++;
+  const started = Date.now();
+  const timer = setInterval(() => {
+    const r = store.get(receiptId);
+    if (!r || r.outcome !== 'pending' || Date.now() - started > RUN_SLOT_TIMEOUT_MS) {
+      demoRunning = Math.max(0, demoRunning - 1);
+      clearInterval(timer);
+    }
+  }, 2_000);
+  timer.unref();
+}
 
 const app = new Hono();
-app.use('/api/*', cors({ origin: (o) => o ?? '*', allowMethods: ['GET', 'POST'] }));
+app.use('/api/*', cors({ origin: (o) => (WEB_ORIGINS.has(o) ? o : 'https://provia-ten.vercel.app'), allowMethods: ['GET', 'POST'] }));
 
 app.get('/health', (c) => c.json({ ok: true }));
 
 // Agent Games: HMAC over the raw body, verified before parsing; every authenticated reply signed.
 app.post('/agent', async (c) => {
+  if (Number(c.req.header('content-length') ?? 0) > MAX_AGENT_BODY_BYTES) return c.json({ error: 'body too large' }, 413);
   const raw = await c.req.text();
+  if (raw.length > MAX_AGENT_BODY_BYTES) return c.json({ error: 'body too large' }, 413);
   const out = handleAgentGames(raw, c.req.header(SIGNATURE_HEADER), env.AGENT_GAMES_HMAC_SECRET);
   const headers: Record<string, string> = { 'content-type': 'application/json' };
   if (out.signature) headers[SIGNATURE_HEADER] = out.signature;
@@ -117,18 +150,13 @@ app.post('/api/demo/:scenario', async (c) => {
   const scenario = c.req.param('scenario');
   if (!isScenario(scenario)) return c.json({ error: 'unknown scenario', scenarios: Object.keys(SCENARIOS) }, 404);
   if (!ctx) return c.json({ error: 'agent is not configured for live trades' }, 503);
-  const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? 'local';
-  if (!demoLimiter.take(ip)) return c.json({ error: 'rate limited: 6 live demo trades per hour per visitor' }, 429);
-  if (demoRunning >= MAX_CONCURRENT_DEMOS) return c.json({ error: 'demo trades are busy; try again in a minute' }, 429);
-  demoRunning++;
+  if (demoRunning >= MAX_CONCURRENT_RUNS) return c.json({ error: 'demo trades are busy; try again in a minute' }, 429);
+  if (!demoLimiter.take(clientKey(c.req.header('x-forwarded-for')))) return c.json({ error: 'rate limited: 6 live demo trades per hour per visitor' }, 429);
+  if (!globalLimiter.take('all')) return c.json({ error: 'the live demo has hit its hourly limit; try again later' }, 429);
+  const gas = await gasStatus();
+  if (!gas.ok) return c.json({ error: 'demo paused: the demo wallet is low on test gas' }, 503);
   const receipt = await startScenario(ctx, scenario);
-  const release = setInterval(() => {
-    const r = store.get(receipt.id);
-    if (!r || r.outcome !== 'pending') {
-      demoRunning--;
-      clearInterval(release);
-    }
-  }, 2_000);
+  holdSlot(receipt.id);
   return c.json({ receiptId: receipt.id, tradeId: receipt.tradeId }, 202);
 });
 
@@ -140,14 +168,20 @@ app.post('/api/trades/:tradeId/claim', async (c) => {
   if (!/^[1-9][0-9]{0,40}$/.test(id)) return c.json({ error: 'tradeId must be a positive integer' }, 400);
   const parsed = claimBody.safeParse(await c.req.json().catch(() => null));
   if (!parsed.success) return c.json({ error: 'body must be {"message": "..."}' }, 400);
-  const ip = c.req.header('x-forwarded-for')?.split(',')[0]?.trim() ?? 'local';
-  if (!demoLimiter.take(ip)) return c.json({ error: 'rate limited' }, 429);
+  if (demoRunning >= MAX_CONCURRENT_RUNS) return c.json({ error: 'busy; try again in a minute' }, 429);
+  if (!demoLimiter.take(clientKey(c.req.header('x-forwarded-for')))) return c.json({ error: 'rate limited' }, 429);
+  if (!globalLimiter.take('all')) return c.json({ error: 'hourly limit reached; try again later' }, 429);
+  // Only locked trades get a receipt: no receipts (or proving work) for arbitrary ids.
+  const trade = await chain.getTrade(BigInt(id)).catch(() => null);
+  if (!trade || trade.state !== 'Locked') return c.json({ error: 'trade is not locked in the escrow', code: 'TRADE_NOT_LOCKED' }, 409);
   const receipt = store.create(BigInt(id), 'claim');
+  holdSlot(receipt.id);
   void runClaim(ctx, receipt, parsed.data.message);
   return c.json({ receiptId: receipt.id, tradeId: id }, 202);
 });
 
 app.get('/api/trades/:tradeId', async (c) => {
+  if (!readLimiter.take(clientKey(c.req.header('x-forwarded-for')))) return c.json({ error: 'rate limited' }, 429);
   const id = c.req.param('tradeId');
   if (!/^[1-9][0-9]{0,40}$/.test(id)) return c.json({ error: 'tradeId must be a positive integer' }, 400);
   const t = await chain.getTrade(BigInt(id));
@@ -167,7 +201,13 @@ app.get('/api/receipts/:id', (c) => {
 const REFUND_SWEEP_MS = 30 * 60_000;
 async function refundSweep(): Promise<void> {
   if (!ctx) return;
-  const now = await chain.latestTimestamp();
+  let now: bigint;
+  try {
+    now = await chain.latestTimestamp();
+  } catch (e) {
+    process.stderr.write(`refund sweep skipped: ${(e as Error).message.slice(0, 120)}\n`);
+    return;
+  }
   for (const r of store.list(500)) {
     if (r.outcome === 'released' || r.outcome === 'pending') continue;
     try {
@@ -183,6 +223,10 @@ async function refundSweep(): Promise<void> {
   }
 }
 setInterval(() => void refundSweep(), REFUND_SWEEP_MS).unref();
+
+process.on('unhandledRejection', (reason) => {
+  process.stderr.write(`unhandled rejection: ${String((reason as Error)?.message ?? reason).slice(0, 300)}\n`);
+});
 
 const port = Number(env.PORT ?? 8787);
 serve({ fetch: app.fetch, port }, (info) => process.stdout.write(`provia agent listening on :${info.port}\n`));

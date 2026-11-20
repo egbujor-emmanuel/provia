@@ -11,7 +11,10 @@ import { KurierClient, AGGREGATION_DOMAIN, BASE_SEPOLIA_CHAIN_ID, toAttestation 
 import type { Chain, TxReceipt } from './chain.ts';
 import type { Receipt, ReceiptStep, ReceiptStore } from './receipts.ts';
 
+/** References being proven right now: a second claim on the same payment is refused at once. */
+const inFlight = new Set<string>();
 const RELEASE_ATTEMPTS = 8;
+const MAINNET_GRACE_MS = 90_000;
 const RELEASE_RETRY_MS = 20_000;
 
 export const ZKVERIFY_EXPLORER ={ mainnet: 'https://zkverify.subscan.io/extrinsic/', testnet: 'https://zkverify-testnet.subscan.io/extrinsic/' } as const;
@@ -60,7 +63,12 @@ async function step<T>(
     return out;
   } catch (e) {
     s.status = e instanceof Refused ? 'refused' : 'error';
-    s.detail = s.detail ?? (e as Error).message;
+    if (e instanceof Refused) s.detail = s.detail ?? e.message;
+    else {
+      // Raw errors can carry RPC or provider detail: log them, publish a generic line.
+      process.stderr.write(`step ${key} failed for receipt ${receipt.id}: ${(e as Error).message}\n`);
+      s.detail = 'internal error; the trade was not released';
+    }
     throw e;
   } finally {
     s.endedAt = new Date().toISOString();
@@ -70,6 +78,7 @@ async function step<T>(
 
 export async function runClaim(deps: PipelineDeps, receipt: Receipt, message: string): Promise<Receipt> {
   const { chain, store } = deps;
+  let reserved: string | null = null;
   const tradeId = BigInt(receipt.tradeId);
   try {
     const onchain = await step(store, receipt, 'trade', 'Read the trade from the escrow', async (s) => {
@@ -92,7 +101,9 @@ export async function runClaim(deps: PipelineDeps, receipt: Receipt, message: st
     const nullifier = await step(store, receipt, 'replay', 'Check the payment was never used before', async (s) => {
       const n = await nullifierFor(reference);
       s.data = { nullifier: n.toString() };
-      if (deps.usedReferences.has(reference) || (await chain.isNullifierUsed(n))) throw new Refused('REF_REUSED');
+      if (deps.usedReferences.has(reference) || inFlight.has(reference) || (await chain.isNullifierUsed(n))) throw new Refused('REF_REUSED');
+      inFlight.add(reference);
+      reserved = reference;
       return n;
     });
 
@@ -206,7 +217,8 @@ export async function runClaim(deps: PipelineDeps, receipt: Receipt, message: st
       return r!;
     });
 
-    await mainnet;
+    // The release is already final on Base Sepolia; give the mainnet check a short grace period.
+    await Promise.race([mainnet, new Promise((r) => setTimeout(r, MAINNET_GRACE_MS))]);
     receipt.outcome = 'released';
     receipt.steps.push({ key: 'done', title: 'Released', status: 'done', startedAt: new Date().toISOString(), endedAt: new Date().toISOString(), detail: `paid ${onchain.tokenAmount} USDC units to ${onchain.recipient}`, links: { basescan: tx.url } });
   } catch (e) {
@@ -218,6 +230,7 @@ export async function runClaim(deps: PipelineDeps, receipt: Receipt, message: st
       receipt.refusal = undefined;
     }
   }
+  if (reserved) inFlight.delete(reserved);
   store.save(receipt);
   return receipt;
 }

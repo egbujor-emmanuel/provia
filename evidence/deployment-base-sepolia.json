@@ -2,14 +2,16 @@
   "network": "base-sepolia",
   "chainId": 84532,
   "contract": "ProviaEscrow",
-  "address": "0x2786C763748BED21787916D8EC766F1Cde929a26",
-  "deployTx": "0xf28dd95f3f377e3591149d470cc21625d6f0329a24ff61e3496638d1e7c78d5d",
-  "block": 60880137,
+  "address": "0x92C4a650CB874cB5d450765CEA619c3Dc49aeC79",
+  "deployTx": "0x708f0a81e85f0b404c35879a4b85466ffc81ce98d55ec5df65af3ddce06de29f",
+  "block": 61355427,
   "deployer": "0x1755E7CA81a3a907bB15637fD40Eb874ADb9815f",
   "constructor": {
     "zkVerify": "0x0807C544D38aE7729f8798388d89Be6502A1e8A8",
     "vkHash": "0x23abe0175caa02a03514d25fb4812e6ef5f2cee9a9f03800cafae54735446e14",
-    "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e"
+    "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    "agent": "0x1755E7CA81a3a907bB15637fD40Eb874ADb9815f",
+    "aggregationDomain": 2
   },
-  "deployedAt": "2026-11-19T14:18:16.793Z"
+  "deployedAt": "2026-11-20T16:42:36.434Z"
 }

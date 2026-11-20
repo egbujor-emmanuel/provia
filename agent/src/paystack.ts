@@ -53,6 +53,7 @@ export async function verifyTransaction(reference: string, secretKey: string | u
   const key = requireTestKey(secretKey);
   const res = await fetchImpl(`${PAYSTACK_API}/transaction/verify/${encodeURIComponent(reference)}`, {
     headers: { Authorization: `Bearer ${key}` },
+    signal: AbortSignal.timeout(20_000),
   });
   if (res.status === 404 || res.status === 400) return null;
   if (!res.ok) throw new Error(`Paystack verify HTTP ${res.status}`);
@@ -78,6 +79,7 @@ export async function payWithTestCard(args: { tradeId: bigint; amountKobo: bigin
   const res = await (args.fetchImpl ?? fetch)(`${PAYSTACK_API}/charge`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${key}`, 'content-type': 'application/json' },
+    signal: AbortSignal.timeout(30_000),
     body: JSON.stringify({
       email: 'buyer@example.com',
       amount: args.amountKobo.toString(),

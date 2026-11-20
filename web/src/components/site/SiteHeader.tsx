@@ -29,6 +29,13 @@ export function SiteHeader() {
           Try it
         </Link>
       </div>
+      <nav aria-label="Main navigation (mobile)" className="flex gap-5 overflow-x-auto border-t border-rule px-4 py-2 text-sm text-ink-2 md:hidden">
+        {NAV.map((n) => (
+          <Link key={n.href} href={n.href} className="shrink-0 transition-colors hover:text-ink">
+            {n.label}
+          </Link>
+        ))}
+      </nav>
     </header>
   );
 }

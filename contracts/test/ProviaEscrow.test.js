@@ -20,15 +20,17 @@ function leafJs(vkHash, signals) {
 
 describe("ProviaEscrow", () => {
   async function deploy() {
-    const [seller, buyer, stranger] = await ethers.getSigners();
+    const [seller, buyer, stranger, agent] = await ethers.getSigners();
     const verifier = await (await ethers.getContractFactory("AttestingVerifier")).deploy();
     const usdc = await (await ethers.getContractFactory("TestUSDC")).deploy();
-    const escrow = await (await ethers.getContractFactory("ProviaEscrow")).deploy(
-      await verifier.getAddress(), VK_HASH, await usdc.getAddress());
+    const deployed = await (await ethers.getContractFactory("ProviaEscrow")).deploy(
+      await verifier.getAddress(), VK_HASH, await usdc.getAddress(), agent.address, ATT.domainId);
+    // Release calls below come from the agent unless a test connects another signer.
+    const escrow = deployed.connect(agent);
     await usdc.mint(seller.address, USDC(1000));
     await usdc.connect(seller).approve(await escrow.getAddress(), USDC(1000));
     const deadline = BigInt(await time.latest()) + 3600n;
-    return { seller, buyer, stranger, verifier, usdc, escrow, deadline };
+    return { seller, buyer, stranger, agent, verifier, usdc, escrow, deadline };
   }
 
   async function lockedTrade(tradeId = 1001n) {
@@ -51,10 +53,10 @@ describe("ProviaEscrow", () => {
     expect((await escrow.trades(tradeId)).state).to.equal(1n);
   });
 
-  it("releases to the recipient when zkVerify attests the rebuilt leaf, even if a stranger calls", async () => {
-    const { escrow, verifier, usdc, buyer, stranger, tradeId, proof, signals } = await lockedTrade();
+  it("releases to the recipient when zkVerify attests the rebuilt leaf", async () => {
+    const { escrow, verifier, usdc, buyer, tradeId, proof, signals } = await lockedTrade();
     await verifier.attest(leafJs(VK_HASH, signals));
-    await expect(escrow.connect(stranger).release(tradeId, proof.nullifier, proof.claimCommit, ATT))
+    await expect(escrow.release(tradeId, proof.nullifier, proof.claimCommit, ATT))
       .to.emit(escrow, "Released");
     expect(await usdc.balanceOf(buyer.address)).to.equal(USDC(50));
     expect(await escrow.nullifierUsed(proof.nullifier)).to.equal(true);
@@ -110,15 +112,40 @@ describe("ProviaEscrow", () => {
     await escrow.connect(seller).lock(5n, buyer.address, USDC(1), 1n, deadline);
     await expect(escrow.connect(seller).lock(5n, buyer.address, USDC(1), 1n, deadline)).to.be.revertedWithCustomError(escrow, "TradeExists");
     await expect(escrow.connect(seller).lock(0n, buyer.address, USDC(1), 1n, deadline)).to.be.revertedWithCustomError(escrow, "InvalidTrade");
-    const field = 21888242871839275222246405745257275088548364400416711303009522949311349895999n + 618n;
+    const field = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
     await expect(escrow.connect(seller).lock(field, buyer.address, USDC(1), 1n, deadline)).to.be.revertedWithCustomError(escrow, "InvalidTrade");
     const past = BigInt(await time.latest()) - 1n;
     await expect(escrow.connect(seller).lock(6n, buyer.address, USDC(1), 1n, past)).to.be.revertedWithCustomError(escrow, "DeadlinePassed");
   });
 
-  it("rejects public inputs outside the SNARK field", async () => {
+  it("rejects public inputs outside the SNARK field (r itself and r + 1)", async () => {
     const { escrow, tradeId, proof } = await lockedTrade();
-    const field = 21888242871839275222246405745257275088548364400416711303009522949311349895999n + 618n;
-    await expect(escrow.release(tradeId, field, proof.claimCommit, ATT)).to.be.revertedWithCustomError(escrow, "InputOutOfField");
+    const r = 21888242871839275222246405745257275088548364400416034343698204186575808495617n;
+    await expect(escrow.release(tradeId, r, proof.claimCommit, ATT)).to.be.revertedWithCustomError(escrow, "InputOutOfField");
+    await expect(escrow.release(tradeId, proof.nullifier, r + 1n, ATT)).to.be.revertedWithCustomError(escrow, "InputOutOfField");
+  });
+
+  it("only the agent can release: a buyer with a self-made attested proof is refused", async () => {
+    const { escrow, verifier, buyer, stranger, tradeId, proof, signals } = await lockedTrade();
+    await verifier.attest(leafJs(VK_HASH, signals));
+    for (const who of [buyer, stranger]) {
+      await expect(escrow.connect(who).release(tradeId, proof.nullifier, proof.claimCommit, ATT))
+        .to.be.revertedWithCustomError(escrow, "NotAgent");
+    }
+  });
+
+  it("refuses a release after the deadline, so release and refund never overlap", async () => {
+    const { escrow, verifier, tradeId, proof, signals } = await lockedTrade();
+    await verifier.attest(leafJs(VK_HASH, signals));
+    await time.increase(3601);
+    await expect(escrow.release(tradeId, proof.nullifier, proof.claimCommit, ATT))
+      .to.be.revertedWithCustomError(escrow, "DeadlinePassed");
+  });
+
+  it("refuses an attestation from another aggregation domain", async () => {
+    const { escrow, verifier, tradeId, proof, signals } = await lockedTrade();
+    await verifier.attest(leafJs(VK_HASH, signals));
+    await expect(escrow.release(tradeId, proof.nullifier, proof.claimCommit, { ...ATT, domainId: 99 }))
+      .to.be.revertedWithCustomError(escrow, "WrongDomain");
   });
 });

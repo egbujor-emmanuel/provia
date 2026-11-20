@@ -124,6 +124,8 @@ export interface WaitOptions {
 
 const defaultSleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
+const MAX_POLL_FAILURES = 5;
+
 export class KurierClient {
   readonly baseUrl: string;
   readonly network: KurierNetwork;
@@ -141,6 +143,7 @@ export class KurierClient {
   private async request<T>(path: string, schema: z.ZodType<T>, init?: RequestInit): Promise<T> {
     // The API key is part of the path; never include the URL in errors or logs.
     const res = await this.#fetch(`${this.baseUrl}${path.replace('{key}', this.#apiKey)}`, {
+      signal: AbortSignal.timeout(30_000),
       ...init,
       headers: { 'content-type': 'application/json', ...(init?.headers ?? {}) },
     });
@@ -191,12 +194,23 @@ export class KurierClient {
   }
 
   /** Polls until the job reaches `target`; throws on Failed or timeout. */
+  /** Consecutive failed status polls tolerated before waitFor gives up. */
   async waitFor(jobId: string, target: Exclude<JobStatus, 'Failed'>, opts: WaitOptions = {}): Promise<JobStatusResponse> {
     const { intervalMs = 5_000, timeoutMs = 15 * 60_000, onStatus, sleep = defaultSleep } = opts;
     const deadline = Date.now() + timeoutMs;
     let last = '';
+    let failures = 0;
     for (;;) {
-      const job = await this.jobStatus(jobId);
+      let job: JobStatusResponse;
+      try {
+        job = await this.jobStatus(jobId);
+        failures = 0;
+      } catch (e) {
+        // A network blip is not a verdict: retry a few polls before giving up.
+        if (++failures >= MAX_POLL_FAILURES || Date.now() > deadline) throw e;
+        await sleep(intervalMs);
+        continue;
+      }
       if (job.status !== last) {
         last = job.status;
         onStatus?.(job);

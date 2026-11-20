@@ -22,17 +22,17 @@ Crypto escrow that releases only on a verified payment proof. In P2P trades, sel
 - Circuit: `release_policy.circom` (Groth16/BN128): payment succeeded, trade currency, paid ≥ price, paid before the deadline, bound to this trade and recipient; public output `nullifier = Poseidon(reference)`; `claimCommit` binds the zkTLS-revealed fields.
 - zkTLS: Reclaim zkFetch over the processor's verify API (Paystack test mode), verified with Reclaim's official verifier against Reclaim Builder's published attestor set.
 - zkVerify: every release proof submitted through Kurier to zkVerify mainnet, and to zkVerify testnet with aggregation to Base Sepolia.
-- Contract: `ProviaEscrow` on Base Sepolia rebuilds the statement leaf from its own trade data and `vkHash`, calls `verifyProofAggregation` on the zkVerify proxy, burns the nullifier and pays the recorded buyer.
+- Contract: `ProviaEscrow` on Base Sepolia accepts `release` only from the agent and only before the deadline; it rebuilds the statement leaf from its own trade data and `vkHash`, calls `verifyProofAggregation` on the zkVerify proxy for its pinned aggregation domain, burns the nullifier and pays the recorded buyer.
 - Agent: Node/TypeScript on Render; deterministic release policy, no model in the decision; typed refusals; public receipts persisted to a dataset.
-- Tests: 55 (10 circuit, 10 contract, 35 agent) plus typecheck. `npm run evidence:verify` runs 19 public checks.
+- Tests: 58 (10 circuit, 13 contract, 35 agent) plus typecheck. `npm run evidence:verify` runs 19 public checks.
 
 ## How zkVerify helps (verifiability)
-The escrow cannot be talked into a release. It pays only after zkVerify attests a proof whose public inputs the contract recomputes: trade id, recipient, price, deadline, nullifier and claim commitment. A compromised agent cannot release funds for a payment it cannot prove. Every release proof is also verified on zkVerify mainnet for finality.
+The escrow pays only after zkVerify attests a proof whose public inputs the contract recomputes: trade id, recipient, price, deadline, nullifier and claim commitment. Only the agent, which verified the zkTLS payment proof, may call release, and even it cannot change the recipient, price, deadline or reuse a payment. Every release proof is also submitted to zkVerify mainnet, so each verdict has a public mainnet record.
 
 ## Evidence
 - First live release: lock https://sepolia.basescan.org/tx/0xe37391cec2221d32228f1996a9243fd386c27e69ad375f259b36dec6be5f13ff · zkVerify mainnet https://zkverify.subscan.io/extrinsic/0x1e11a7dc810b63166a0beaa0f7958baa3a1375e972da87bc752f3510d8277905 · zkVerify aggregation https://zkverify-testnet.subscan.io/extrinsic/0x3214d4232db24fd03d8b95630572fd84f3536f15234cd60a24f7fdfd611e3e2a · release https://sepolia.basescan.org/tx/0x9b083be9e004417e3acd9aafdf9a90821fa94a3bc8c3a31aa595b6d5aef61746
 - Four attacks refused live: `NO_PAYMENT_AT_PSP`, `AMOUNT_SHORT`, `TRADE_MISMATCH`, `REF_REUSED` (receipts in `evidence/claims.json`)
-- Escrow: https://sepolia.basescan.org/address/0x2786C763748BED21787916D8EC766F1Cde929a26
+- Escrow: https://sepolia.basescan.org/address/0x92C4a650CB874cB5d450765CEA619c3Dc49aeC79
 
 ## Public share (bonus)
 X thread with #AgentGames and @ZKVProtocol: link added when posted.

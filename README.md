@@ -4,7 +4,7 @@
 
 [Live site](https://provia-ten.vercel.app) · [Agent API](https://provia-ch7d.onrender.com/api/config) · [Public receipts](https://provia-ten.vercel.app/receipts) · [How it works](https://provia-ten.vercel.app/how-it-works) · [Judges, start here](JUDGES.md)
 
-In a peer-to-peer trade, the seller of crypto usually releases it after looking at a payment alert, and alerts are easy to fake. Provia removes that step. The crypto waits in a contract. The agent proves what the payment processor's own API returned (zkTLS), proves the trade rules hold (Groth16, verified on zkVerify), and the contract itself checks zkVerify's attestation before paying out. No model, person or picture decides.
+In a peer-to-peer trade, the seller of crypto usually releases it after looking at a payment alert, and alerts are easy to fake. Provia removes that step. The crypto waits in a contract. The agent proves what the payment processor's own API returned (zkTLS), proves the trade rules hold (Groth16, verified on zkVerify), and the contract checks zkVerify's attestation before paying out. No model, person or picture decides.
 
 Built for the zkVerify Agent Games (Wildcard track).
 
@@ -13,9 +13,9 @@ Built for the zkVerify Agent Games (Wildcard track).
 | Step | What to do | What you should see |
 |---|---|---|
 | 1 | Open [provia-ten.vercel.app](https://provia-ten.vercel.app) | Live Base Sepolia block height, the escrow address and the agent's latest receipt along the bottom |
-| 2 | Click **Try a forged payment** | A real trade is locked on Base Sepolia, then refused in about 20 s with `NO_PAYMENT_AT_PSP`. No funds move |
+| 2 | Click **Try a forged payment** | A real trade is locked on Base Sepolia, then refused within seconds with `NO_PAYMENT_AT_PSP`. No funds move |
 | 3 | In the attack lab, run **Short payment**, **Someone else's payment**, **Replay** | Refused with `AMOUNT_SHORT`, `TRADE_MISMATCH`, `REF_REUSED` |
-| 4 | Run **Honest buyer** | Paid on Base Sepolia in about 90 s. The receipt links the lock, both zkVerify transactions and the release |
+| 4 | Run **Honest buyer** | Paid on Base Sepolia in 1 to 4 minutes (the wait is zkVerify's aggregation reaching Base Sepolia). The receipt links the lock, both zkVerify transactions and the release |
 | 5 | Open any receipt | Every step, its timing, and links to Basescan and zkVerify Subscan |
 
 Or from a terminal, against the live agent:
@@ -52,9 +52,19 @@ buyer: "I've paid, ref X" ─► agent
 
 Any error, timeout or mismatch ends in a refusal. The escrow is never asked to release unless every step passed.
 
-## Why zkVerify is essential
+## Why zkVerify is essential, and what is trusted
 
-Without zkVerify, the escrow would have to trust the agent's word that a payment cleared. With it, the contract checks a zkVerify attestation for a proof whose public inputs it recomputes itself (trade id, recipient, price, deadline, nullifier, claim commitment). A compromised agent cannot release funds for a payment it cannot prove. No proof, no release; no aggregation, no release.
+The contract never takes a picture or a person's word. It pays only when zkVerify attests a Groth16 proof whose public inputs the contract recomputes itself: trade id, recipient, price, deadline, the one-time nullifier and the claim commitment. No attested proof, no release.
+
+The trust split is explicit:
+
+| Who | Checks |
+|---|---|
+| The agent (the only address allowed to call `release`) | The zkTLS proof of the payment processor's response, verified with Reclaim's official verifier against Reclaim's published attestors, before it proves anything |
+| The Groth16 circuit, verified on zkVerify | Payment succeeded, trade currency, paid ≥ price, paid before the deadline, bound to this trade and buyer; `claimCommit` ties the proof to the zkTLS-revealed fields |
+| `ProviaEscrow`, on-chain | zkVerify's aggregation for the leaf it rebuilds itself, the recipient, the price, the deadline, the nullifier (one payment, one release), the aggregation domain, and that the caller is the agent |
+
+So even the agent cannot pay a different address, accept a lower price or a late payment, or use one payment twice. The agent is trusted for one thing only: that the zkTLS proof it checked was valid.
 
 ## Proof it runs
 
@@ -71,13 +81,13 @@ All four attacks were refused on the same deployment; their receipts are in [evi
 
 | Contract | Address |
 |---|---|
-| ProviaEscrow (Base Sepolia) | [`0x2786C763748BED21787916D8EC766F1Cde929a26`](https://sepolia.basescan.org/address/0x2786C763748BED21787916D8EC766F1Cde929a26) |
+| ProviaEscrow (Base Sepolia) | [`0x92C4a650CB874cB5d450765CEA619c3Dc49aeC79`](https://sepolia.basescan.org/address/0x92C4a650CB874cB5d450765CEA619c3Dc49aeC79) |
 | zkVerify proxy (Base Sepolia) | `0x0807C544D38aE7729f8798388d89Be6502A1e8A8` |
 | Release-policy vkHash (registered on Kurier testnet and mainnet) | `0x23abe0175caa02a03514d25fb4812e6ef5f2cee9a9f03800cafae54735446e14` |
 
 ## Tests
 
-`npm run verify` runs the agent typecheck and 55 tests: 10 circuit, 10 contract, 35 agent. Each attack class has a named test at every layer; see [THREAT_MODEL.md](THREAT_MODEL.md).
+`npm run verify` runs the agent typecheck and 58 tests: 10 circuit, 13 contract, 35 agent. Each attack class has a named test at every layer; see [THREAT_MODEL.md](THREAT_MODEL.md).
 
 ## Repository
 

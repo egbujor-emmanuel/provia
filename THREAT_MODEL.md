@@ -1,6 +1,6 @@
 # Threat model
 
-Assets: test USDC locked in `ProviaEscrow`. Adversaries: a dishonest buyer, a compromised or buggy agent, a third party calling the contract.
+Assets: test USDC locked in `ProviaEscrow`. Adversaries: a dishonest buyer, a third party calling the contract, a buggy agent.
 
 | Attack | Defence | Named test(s) | Live run |
 |---|---|---|---|
@@ -13,12 +13,15 @@ Assets: test USDC locked in `ProviaEscrow`. Adversaries: a dishonest buyer, a co
 | Edits a zkTLS-revealed value | Attestor signature over the claim breaks | agent `zkTLS: editing a revealed value breaks the attestor signature` | |
 | zkTLS proof from an unknown attestor | Verified against Reclaim Builder's published attestor set | agent `zkTLS: …or an untrusted attestor` | |
 | Caller-supplied leaf (Elenchos bug class) | `release()` takes no leaf; it rebuilds it from trade data and `vkHash` | contract `contract leaf equals the independently computed zkVerify leaf`, `refuses a release that zkVerify has not attested (forged claimCommit)` | |
-| Release to a different address | Recipient is fixed at lock and is a public input; anyone may call release, funds only go to the recipient | circuit `a proof does not verify against a changed recipient`; contract `releases to the recipient… even if a stranger calls` | |
+| Release to a different address | Recipient is fixed at lock and is a public input; funds only go to the recipient | circuit `a proof does not verify against a changed recipient`; contract `releases to the recipient when zkVerify attests the rebuilt leaf` | |
+| Buyer proves made-up payment fields with the public circuit and gets it aggregated | Only the agent (which verified the zkTLS proof) may call `release` | contract `only the agent can release: a buyer with a self-made attested proof is refused` | |
+| Release after the deadline | `release` refuses after the deadline, so release and refund never overlap | contract `refuses a release after the deadline, so release and refund never overlap` | |
+| Attestation from another aggregation domain | Domain pinned at deploy | contract `refuses an attestation from another aggregation domain` | |
 | Double release or refund after release | State machine Locked → Released/Refunded | contract `a released trade cannot be released or refunded again` | |
 | Seller pulls funds early | Refund only by the seller, only after the deadline | contract `refund: only the seller, only after the deadline` | |
-| Out-of-field public inputs | Contract rejects values ≥ the SNARK field | contract `rejects public inputs outside the SNARK field` | |
+| Out-of-field public inputs (aliasing a nullifier past the replay guard) | Contract rejects values ≥ the BN254 field order r | contract `rejects public inputs outside the SNARK field (r itself and r + 1)` | |
 | Forged Agent Games request | HMAC-SHA256 over the raw body before parsing; unsigned 401 | agent `agent games: bad, missing or wrong-secret signatures get an unsigned 401` | |
 | Agent misconfigured or a dependency down | Fail closed: every step wrapped; errors end in a refusal, writes simulated first | agent `agent games: no secret configured fails closed with 503`; pipeline refusals | first honest run on a misconfigured image refused `ZKTLS_INVALID`, no release |
 | Secret leakage | Keys only in environment variables; never in receipts, logs or proofs | agent `kurier: client … never leaks the key in errors`; zkTLS secret headers never revealed | |
 
-Trust assumptions: Reclaim's attestors (zkTLS), zkVerify's verifier and aggregation relay to Base Sepolia, and the payment processor's API being honest about its own records.
+Trust assumptions: the agent, for checking the zkTLS proof before proving (it is the only address that can call `release`, and the contract still enforces recipient, price, deadline, replay and zkVerify's attestation); Reclaim's attestors (zkTLS); zkVerify's verifier and the aggregation relay to Base Sepolia; and the payment processor's API being honest about its own records.
